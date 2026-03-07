@@ -1,16 +1,7 @@
 import type { Team } from "../lib/types";
-import { getTeams, upsertTeam, setTeams } from "../lib/store";
+import { getTeams, upsertTeam } from "../lib/store";
 import { requireAuth } from "../lib/auth";
 import { handleApiError } from "../lib/errors";
-
-async function seedIfEmpty(): Promise<Team[]> {
-  const teams = await getTeams();
-  if (teams.length > 0) return teams;
-  const { makeDemoTeams } = await import("../lib/seed");
-  const seeded = makeDemoTeams();
-  await setTeams(seeded);
-  return seeded;
-}
 
 export default async function handler(req: Request) {
   try {
@@ -18,7 +9,7 @@ export default async function handler(req: Request) {
     if (auth instanceof Response) return auth;
 
     if (req.method === "GET") {
-      const teams = await seedIfEmpty();
+      const teams = await getTeams();
       return new Response(JSON.stringify(teams), {
         status: 200,
         headers: { "Content-Type": "application/json" },

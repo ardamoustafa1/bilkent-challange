@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as store from "../store.js";
 import type { Team } from "../types.js";
 import { teamSchema, teamIdSchema, scoresPatchSchema, importTeamsSchema, filterValidBadges } from "../lib/validation.js";
+import { requireAdmin, requireJudgeOrAdmin } from "../middleware/auth.js";
 
 export const teamsRouter = Router();
 
@@ -18,7 +19,7 @@ teamsRouter.get("/:id", (req, res) => {
   res.json(t);
 });
 
-teamsRouter.post("/", (req, res) => {
+teamsRouter.post("/", requireAdmin, (req, res) => {
   const parsed = teamSchema.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçersiz istek.";
@@ -30,7 +31,7 @@ teamsRouter.post("/", (req, res) => {
   res.status(201).json(created);
 });
 
-teamsRouter.put("/:id", (req, res) => {
+teamsRouter.put("/:id", requireAdmin, (req, res) => {
   const parsed = teamSchema.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçersiz istek.";
@@ -46,7 +47,16 @@ teamsRouter.put("/:id", (req, res) => {
   res.json(updated);
 });
 
-teamsRouter.patch("/:id/scores", (req, res) => {
+teamsRouter.delete("/:id", requireAdmin, (req, res) => {
+  const success = store.deleteTeam(req.params.id);
+  if (!success) {
+    res.status(404).json({ error: "Takım bulunamadı." });
+    return;
+  }
+  res.status(204).end();
+});
+
+teamsRouter.patch("/:id/scores", requireJudgeOrAdmin, (req, res) => {
   const parsed = scoresPatchSchema.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçersiz istek.";
@@ -63,7 +73,7 @@ teamsRouter.patch("/:id/scores", (req, res) => {
   res.json(updated);
 });
 
-teamsRouter.post("/import", (req, res) => {
+teamsRouter.post("/import", requireAdmin, (req, res) => {
   const parsed = importTeamsSchema.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçerli takım listesi gerekli.";

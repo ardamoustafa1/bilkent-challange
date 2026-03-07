@@ -1,4 +1,5 @@
 import type { Session, Team, Judge } from "@/types";
+import { LS_TOKEN } from "@/constants/demo";
 
 const API_BASE =
   typeof import.meta.env !== "undefined" && import.meta.env.VITE_API_URL
@@ -15,14 +16,13 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
     const err = await res.json().catch(() => ({}));
     throw new Error((err as { error?: string }).error ?? res.statusText);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
-const TOKEN_KEY = "apc_token_v1";
-
 function getStoredToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(LS_TOKEN);
 }
 
 function authHeaders(): Record<string, string> {
@@ -73,6 +73,12 @@ export const api = {
     });
   },
 
+  async deleteTeam(id: string): Promise<void> {
+    await fetchJson<void>(`${base}/api/teams/${id}`, {
+      method: "DELETE",
+    });
+  },
+
   async updateTeamScores(teamId: string, scores: Team["scores"], badges: Team["badges"], judgeNote: string, scoresEnteredByJudgeId?: string): Promise<Team> {
     return fetchJson<Team>(`${base}/api/teams/${teamId}/scores`, {
       method: "PATCH",
@@ -106,7 +112,7 @@ export const api = {
   },
 
   async deleteJudge(id: string): Promise<void> {
-    await fetch(`${base}/api/judges/${id}`, { method: "DELETE" });
+    await fetchJson<void>(`${base}/api/judges/${id}`, { method: "DELETE" });
   },
 
   async health(): Promise<boolean> {

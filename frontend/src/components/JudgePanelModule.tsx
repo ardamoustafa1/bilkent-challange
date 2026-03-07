@@ -8,7 +8,7 @@ import type { Judge, Team } from "@/types";
 import { api } from "@/services/api";
 import { safeUUID } from "@/utils/helpers";
 
-const LS_JUDGES = "apc_judges_v1";
+import { LS_JUDGES } from "@/constants/demo";
 
 function readStoredJudges(): Judge[] | null {
   try {
@@ -24,7 +24,7 @@ function readStoredJudges(): Judge[] | null {
 function writeStoredJudges(judges: Judge[]) {
   try {
     localStorage.setItem(LS_JUDGES, JSON.stringify(judges));
-  } catch {}
+  } catch { }
 }
 
 type Props = {
@@ -120,35 +120,35 @@ export function JudgePanelModule({
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-xl border border-slate-200/60 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+      <div className="card p-5">
+        <div className="flex items-center gap-2 text-[15px] font-bold text-slate-900 tracking-tight">
           <UserPlus className="h-4 w-4" />
           Hakem listesi & kayıt
         </div>
-        <p className="mt-1 text-xs text-zinc-600">Hakem ekleyin. Veriler KV/localStorage ile saklanır.</p>
-        <div className="mt-4 grid gap-3">
+        <p className="mt-1 text-[13px] text-slate-500">Hakem ekleyin. Veriler KV/localStorage ile saklanır.</p>
+        <div className="mt-5 grid gap-4">
           <div>
-            <Label className="text-xs text-zinc-600">Ad Soyad</Label>
-            <Input className="mt-1 rounded-2xl" value={name} onChange={(e) => setName(e.target.value)} placeholder="Hakem adı" />
+            <Label className="text-xs font-semibold text-slate-700">Ad Soyad</Label>
+            <Input className="mt-1" value={name} onChange={(e) => setName(e.target.value)} placeholder="Hakem adı" />
           </div>
           <div>
-            <Label className="text-xs text-zinc-600">E-posta</Label>
-            <Input className="mt-1 rounded-2xl" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hakem@okul.k12.tr" />
+            <Label className="text-xs font-semibold text-slate-700">E-posta</Label>
+            <Input className="mt-1" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hakem@okul.k12.tr" />
           </div>
-          <Button className="rounded-2xl" onClick={addJudge} disabled={!name.trim()}>
+          <Button className="" onClick={addJudge} disabled={!name.trim()}>
             <UserPlus className="mr-2 h-4 w-4" /> Hakem ekle
           </Button>
         </div>
-        <div className="mt-4 max-h-48 overflow-y-auto rounded-2xl border bg-white/70 p-2">
+        <div className="mt-5 max-h-48 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50 p-2">
           {judges.length === 0 ? (
             <p className="py-4 text-center text-xs text-slate-500">Henüz hakem yok. Yukarıdan ekleyin.</p>
           ) : (
             <ul className="space-y-2">
               {judges.map((j) => (
-                <li key={j.id} className="flex items-center justify-between gap-2 rounded-xl border bg-white px-3 py-2 text-sm">
-                  <span className="truncate font-medium text-slate-900">{j.name}</span>
-                  <span className="truncate text-xs text-slate-500">{j.email || "—"}</span>
-                  <Button variant="ghost" size="sm" className="rounded-xl text-slate-500 hover:text-red-600" onClick={() => deleteJudge(j.id)}>
+                <li key={j.id} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
+                  <span className="truncate font-semibold text-slate-900">{j.name}</span>
+                  <span className="truncate text-[13px] text-slate-500">{j.email || "—"}</span>
+                  <Button variant="ghost" size="sm" className="h-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => deleteJudge(j.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </li>
@@ -158,17 +158,17 @@ export function JudgePanelModule({
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200/60 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+      <div className="card p-5">
+        <div className="flex items-center gap-2 text-[15px] font-bold text-slate-900 tracking-tight">
           <UserCheck className="h-4 w-4" />
           Takıma hakem ata
         </div>
-        <p className="mt-1 text-xs text-zinc-600">Takım seçin, hakem seçin, Ata ile kaydedin.</p>
-        <div className="mt-4 grid gap-3">
+        <p className="mt-1 text-[13px] text-slate-500">Takım seçin, hakem seçin, Ata ile kaydedin.</p>
+        <div className="mt-5 grid gap-4">
           <div>
-            <Label className="text-xs text-zinc-600">Takım</Label>
+            <Label className="text-xs font-semibold text-slate-700">Takım</Label>
             <Select value={assignTeamId} onValueChange={setAssignTeamId}>
-              <SelectTrigger className="mt-1 rounded-2xl"><SelectValue placeholder="Takım seçin" /></SelectTrigger>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Takım seçin" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Seçiniz</SelectItem>
                 {judgeCandidates.map((t) => (
@@ -178,9 +178,9 @@ export function JudgePanelModule({
             </Select>
           </div>
           <div>
-            <Label className="text-xs text-zinc-600">Hakem</Label>
+            <Label className="text-xs font-semibold text-slate-700">Hakem</Label>
             <Select value={assignJudgeId} onValueChange={setAssignJudgeId}>
-              <SelectTrigger className="mt-1 rounded-2xl"><SelectValue placeholder="Hakem seçin" /></SelectTrigger>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Hakem seçin" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Seçiniz</SelectItem>
                 {judges.map((j) => (
@@ -189,12 +189,12 @@ export function JudgePanelModule({
               </SelectContent>
             </Select>
           </div>
-          <Button className="rounded-2xl" onClick={doAssign} disabled={assignTeamId === "all" || assignJudgeId === "all"}>
+          <Button className="" onClick={doAssign} disabled={assignTeamId === "all" || assignJudgeId === "all"}>
             <UserCheck className="mr-2 h-4 w-4" /> Ata
           </Button>
         </div>
-        <div className="mt-4 max-h-40 overflow-y-auto rounded-2xl border bg-white/70 p-2">
-          <p className="mb-2 text-xs font-semibold text-slate-700">Atanmış hakemler (seçilen filtreye göre)</p>
+        <div className="mt-5 max-h-40 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50 p-2">
+          <p className="mb-3 text-[13px] font-semibold text-slate-700 px-1">Atanmış hakemler</p>
           {judgeCandidates.filter((t) => t.assignedJudgeId).length === 0 ? (
             <p className="py-2 text-xs text-slate-500">Bu listede atanmış hakem yok.</p>
           ) : (
@@ -204,10 +204,10 @@ export function JudgePanelModule({
                 .map((t) => {
                   const j = judges.find((x) => x.id === t.assignedJudgeId);
                   return (
-                    <li key={t.id} className="flex items-center justify-between gap-2 rounded-xl border bg-white px-2 py-1.5 text-xs">
-                      <span className="truncate">{t.name}</span>
-                      <span className="truncate text-zinc-600">→ {j?.name ?? t.assignedJudgeId}</span>
-                      <Button variant="ghost" size="sm" className="h-7 rounded-lg px-2 text-slate-500" onClick={() => doUnassign(t.id)}>
+                    <li key={t.id} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13px] shadow-sm">
+                      <span className="truncate font-semibold text-slate-900">{t.name}</span>
+                      <span className="truncate text-slate-500">→ {j?.name ?? t.assignedJudgeId}</span>
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => doUnassign(t.id)}>
                         Kaldır
                       </Button>
                     </li>

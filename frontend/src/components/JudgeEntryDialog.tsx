@@ -31,10 +31,10 @@ export function JudgeEntryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl rounded-3xl">
+      <DialogContent className="max-w-5xl rounded-[var(--radius-card)]">
         <div className="flex shrink-0 items-center justify-between gap-3">
           <DialogHeader>
-            <DialogTitle className="text-left">Veri Girişi • {team.name}</DialogTitle>
+            <DialogTitle className="text-left text-[17px] font-bold text-slate-900 tracking-tight">Veri Girişi • {team.name}</DialogTitle>
           </DialogHeader>
           <Button variant="ghost" className="rounded-2xl" onClick={() => onOpenChange(false)}>
             <X className="h-4 w-4" />
@@ -49,9 +49,9 @@ export function JudgeEntryDialog({
         <div className="min-h-0 flex-1 overflow-y-auto pr-2">
           <div className="grid gap-4 md:grid-cols-2">
             {SCORE_GROUPS.map((g) => (
-              <div key={g.id} className="rounded-xl border border-slate-200/60 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-                <div className="text-sm font-semibold text-slate-800">{g.title}</div>
-                <div className="mt-3 grid gap-3">
+              <div key={g.id} className="card p-5">
+                <div className="text-sm font-semibold text-slate-900 tracking-tight">{g.title}</div>
+                <div className="mt-4 grid gap-4">
                   {g.items.map((it) => (
                     <MetricSlider
                       key={String(it.key)}
@@ -67,9 +67,9 @@ export function JudgeEntryDialog({
         </div>
 
         {saveError ? <div className="mt-2 shrink-0 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{saveError}</div> : null}
-        <div className="mt-4 flex shrink-0 items-center justify-end gap-2">
-          <Button variant="outline" className="rounded-2xl" onClick={() => onOpenChange(false)} disabled={saving}>Kapat</Button>
-          <Button className="rounded-2xl" onClick={onSave} disabled={saving}>{saving ? "Kaydediliyor…" : "Kaydet"}</Button>
+        <div className="mt-4 flex shrink-0 items-center justify-end gap-3">
+          <Button variant="outline" className="" onClick={() => onOpenChange(false)} disabled={saving}>Kapat</Button>
+          <Button className="" onClick={onSave} disabled={saving}>{saving ? "Kaydediliyor…" : "Kaydet"}</Button>
         </div>
       </DialogContent>
     </Dialog>

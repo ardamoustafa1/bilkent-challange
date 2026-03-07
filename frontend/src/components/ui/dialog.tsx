@@ -21,8 +21,10 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => onOpenChange(false)} aria-hidden />
-      <div className="relative z-50 flex max-h-[90vh] w-full max-w-[95vw] items-center justify-center overflow-y-auto p-2">{children}</div>
+      <div className="fixed inset-0 z-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => onOpenChange(false)} aria-hidden />
+      <div className="pointer-events-none relative z-10 flex max-h-[90vh] w-full max-w-[95vw] items-center justify-center overflow-y-auto p-2">
+        {children}
+      </div>
     </div>
   );
 }
@@ -56,7 +58,7 @@ export function DialogContent({ className = "", children }: { className?: string
     return () => el.removeEventListener("keydown", onKeyDown);
   }, []);
   return (
-    <div ref={contentRef} className={"flex max-h-[85vh] w-full max-w-full flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white p-6 shadow-xl " + className}>
+    <div ref={contentRef} className={"pointer-events-auto flex max-h-[85vh] w-full max-w-full flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white p-6 shadow-xl " + className}>
       {children}
     </div>
   );

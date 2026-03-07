@@ -13,3 +13,21 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
   (req as Request & { session: Session }).session = session;
   next();
 }
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+  const session = (req as Request & { session?: Session }).session;
+  if (!session || session.role !== "admin") {
+    res.status(403).json({ error: "Bu işlem için yönetici yetkisi gerekli." });
+    return;
+  }
+  next();
+}
+
+export function requireJudgeOrAdmin(req: Request, res: Response, next: NextFunction): void {
+  const session = (req as Request & { session?: Session }).session;
+  if (!session || (session.role !== "admin" && session.role !== "judge")) {
+    res.status(403).json({ error: "Bu işlem için hakem veya yönetici yetkisi gerekli." });
+    return;
+  }
+  next();
+}

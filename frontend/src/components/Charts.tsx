@@ -27,15 +27,15 @@ export function EvolRadar({ scores }: { scores: JudgeScores }) {
 
 export function ScoreDistribution({ data }: { data: Array<{ name: string; count: number }> }) {
   return (
-    <div className="rounded-xl border border-slate-200/60 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <div className="text-sm font-semibold text-slate-800">Skor Dağılımı</div>
+    <div className="card p-5">
+      <div className="text-sm font-semibold text-slate-900 tracking-tight">Skor Dağılımı</div>
       <div className="mt-3 h-56 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barCategoryGap={18}>
             <defs>
               <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#64748b" stopOpacity={0.85} />
-                <stop offset="100%" stopColor="#94a3b8" stopOpacity={0.75} />
+                <stop offset="0%" stopColor="#0F172A" stopOpacity={0.85} />
+                <stop offset="100%" stopColor="#334155" stopOpacity={0.75} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -52,19 +52,19 @@ export function ScoreDistribution({ data }: { data: Array<{ name: string; count:
 
 export function BarajDagilimi({ burs, odul, aday, havuz }: { burs: number; odul: number; aday: number; havuz: number }) {
   const items = [
-    { title: "%90+ • Burs", value: burs, cls: "bg-emerald-50/80 border-emerald-200/60" },
-    { title: "%80–89 • Ödül", value: odul, cls: "bg-slate-50 border-slate-200/60" },
-    { title: "%70–79 • Aday", value: aday, cls: "bg-amber-50/80 border-amber-200/60" },
-    { title: "<70 • Havuz", value: havuz, cls: "bg-slate-50 border-slate-200/60" },
+    { title: "%90+ • Burs", value: burs, cls: "bg-emerald-50/50 border-emerald-100 text-emerald-800" },
+    { title: "%80–89 • Ödül", value: odul, cls: "bg-slate-50/50 border-slate-100 text-slate-800" },
+    { title: "%70–79 • Aday", value: aday, cls: "bg-amber-50/50 border-amber-100 text-amber-800" },
+    { title: "<70 • Havuz", value: havuz, cls: "bg-white border-slate-100 text-slate-500" },
   ];
   return (
-    <div className="rounded-xl border border-slate-200/60 bg-white p-4 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
-      <div className="text-sm font-semibold text-slate-800">Baraj Dağılımı</div>
-      <div className="mt-3 grid gap-3 md:grid-cols-4">
+    <div className="card p-5">
+      <div className="text-sm font-semibold text-slate-900 tracking-tight">Baraj Dağılımı</div>
+      <div className="mt-4 grid gap-3 md:grid-cols-4">
         {items.map((it) => (
-          <div key={it.title} className={"rounded-xl border px-4 py-3 " + it.cls}>
-            <div className="text-xs font-semibold text-slate-700">{it.title}</div>
-            <div className="mt-1 text-xs text-slate-600">{it.value} takım</div>
+          <div key={it.title} className={"rounded-[var(--radius-card)] border px-4 py-4 " + it.cls}>
+            <div className="text-xs font-semibold">{it.title}</div>
+            <div className="mt-1 text-sm font-medium opacity-80">{it.value} takım</div>
           </div>
         ))}
       </div>

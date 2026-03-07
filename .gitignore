@@ -27,3 +27,6 @@ Thumbs.db
 
 # Vercel
 .vercel
+
+# Persistent data (JSON store)
+data/

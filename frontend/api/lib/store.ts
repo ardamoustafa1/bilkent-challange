@@ -124,7 +124,7 @@ export async function deleteSession(token: string): Promise<void> {
   await kv.del(SESSION_PREFIX + token);
 }
 
-// --- Demo users (KV'de, ilk boşta seed) ---
+// --- Kullanıcılar: Demo hesaplar (admin/hakem/misafir) KV boşsa seed'lenir ---
 const DEFAULT_DEMO_USERS: DemoUser[] = [
   { email: "admin@biltek.k12.tr", pass: "Biltek2026!", role: "admin", name: "Admin" },
   { email: "hakem@biltek.k12.tr", pass: "Biltek2026!", role: "judge", name: "Hakem" },

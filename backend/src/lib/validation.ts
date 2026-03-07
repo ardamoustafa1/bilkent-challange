@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { BadgeId } from "../types.js";
+import { sanitizeHtml } from "./sanitize.js";
 
 const BADGE_IDS = ["prompt", "sprint", "iletisim", "lider", "gelisim", "mimar"] as const;
 
@@ -40,18 +41,18 @@ const judgeScoresSchema = z.object({
 export const teamSchema = z.object({
   id: z.string().min(1, "Takım id gerekli."),
   week: weekSchema,
-  name: z.string().min(1, "Takım adı gerekli."),
-  captain: z.string().min(1, "Kaptan adı gerekli."),
+  name: z.string().min(1, "Takım adı gerekli.").transform(sanitizeHtml),
+  captain: z.string().min(1, "Kaptan adı gerekli.").transform(sanitizeHtml),
   members: z.array(teamMemberSchema),
   tournamentCategory: z.string().min(1, "Turnuva kategorisi gerekli."),
   tournamentTier: z.string().min(1, "Turnuva seviyesi gerekli."),
-  projectTitle: z.string(),
+  projectTitle: z.string().transform(sanitizeHtml),
   createdAtISO: z.string(),
   badges: z.array(badgeSchema),
   scores: judgeScoresSchema,
-  judgeNote: z.string(),
-  tournament: z.string(),
-  school: z.string(),
+  judgeNote: z.string().transform(sanitizeHtml),
+  tournament: z.string().transform(sanitizeHtml),
+  school: z.string().transform(sanitizeHtml),
   projectMainCategory: z.string().optional(),
   projectSubCategory: z.string().optional(),
   assignedJudgeId: z.string().optional().nullable(),
@@ -63,7 +64,7 @@ export const teamIdSchema = z.object({ id: z.string().min(1, "Takım id gerekli.
 export const scoresPatchSchema = z.object({
   scores: z.record(z.string(), z.number()).optional().default({}),
   badges: z.array(z.string()).optional().default([]),
-  judgeNote: z.string().optional().default(""),
+  judgeNote: z.string().optional().default("").transform(sanitizeHtml),
   scoresEnteredByJudgeId: z.string().optional(),
 });
 

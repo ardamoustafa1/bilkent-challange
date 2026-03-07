@@ -1,10 +1,17 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import rateLimit from "express-rate-limit";
 import { authRouter } from "./routes/auth.js";
 import { teamsRouter } from "./routes/teams.js";
 import { judgesRouter } from "./routes/judges.js";
 import { requireAuth } from "./middleware/auth.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { logger } from "./lib/logger.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -42,6 +49,22 @@ app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
+// ── Serve Frontend Static Files ────────────────────────────────────
+// Railway'de backend hem API hem de frontend'i sunacak.
+// Frontend build dosyaları: ../frontend/dist
+const FRONTEND_DIST = path.resolve(__dirname, "../../frontend/dist");
+app.use(express.static(FRONTEND_DIST));
+
+// SPA fallback: Bilinmeyen route'ları index.html'e yönlendir
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(FRONTEND_DIST, "index.html"));
+});
+
+// ── Global Error Handler ───────────────────────────────────────────
+app.use(errorHandler);
+
 app.listen(PORT, () => {
-  console.log(`Backend API http://localhost:${PORT}`);
+  logger.info("server", `🚀 Server http://localhost:${PORT}`);
+  logger.info("server", `📁 Frontend: ${FRONTEND_DIST}`);
+  logger.info("server", `💾 Data: ${process.env.DATA_DIR || path.join(process.cwd(), "data")}`);
 });

@@ -41,18 +41,18 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-        <div className="text-sm font-black text-slate-900">Takım Bilgisi</div>
-        <div className="mt-4 grid gap-3">
+      <div className="rounded-[var(--radius-card)] border border-slate-100 bg-white shadow-sm p-6">
+        <div className="text-[17px] font-bold text-slate-900 tracking-tight">Takım Bilgisi</div>
+        <div className="mt-5 grid gap-4">
           <div>
-            <Label className="text-xs text-zinc-600">Takım Adı</Label>
-            <Input className="mt-1 rounded-2xl" value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} />
+            <Label className="text-xs font-semibold text-slate-700">Takım Adı</Label>
+            <Input className="mt-1" value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} />
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-xs text-zinc-600">Hafta</Label>
+              <Label className="text-xs font-semibold text-slate-700">Hafta</Label>
               <Select value={String(value.week)} onValueChange={(v) => onChange({ ...value, week: coerceWeek(v) })}>
-                <SelectTrigger className="mt-1 rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {[1, 2, 3, 4].map((w) => (
                     <SelectItem key={w} value={String(w)}>{w}. Hafta</SelectItem>
@@ -61,7 +61,7 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
               </Select>
             </div>
             <div>
-              <Label className="text-xs text-zinc-600">Turnuva Kategorisi</Label>
+              <Label className="text-xs font-semibold text-slate-700">Turnuva Kategorisi</Label>
               <Select
                 value={value.tournamentCategory}
                 onValueChange={(v) => {
@@ -70,7 +70,7 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
                   onChange({ ...value, tournamentCategory: c, tournamentTier: defTier });
                 }}
               >
-                <SelectTrigger className="mt-1 rounded-2xl"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {TOURNAMENT_CATALOG.map((c) => (
                     <SelectItem key={c.category} value={c.category}>{c.category}</SelectItem>
@@ -81,9 +81,9 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
           </div>
 
           <div>
-            <Label className="text-xs text-zinc-600">Turnuva Türü ve Seviyesi</Label>
+            <Label className="text-xs font-semibold text-slate-700">Turnuva Türü ve Seviyesi</Label>
             <Select value={value.tournamentTier} onValueChange={(v) => onChange({ ...value, tournamentTier: v as TournamentTier })}>
-              <SelectTrigger className="mt-1 rounded-2xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {(TOURNAMENT_CATALOG.find((x) => x.category === value.tournamentCategory)?.tiers ?? TOURNAMENT_CATALOG[0].tiers).map((t) => (
                   <SelectItem key={t} value={t}>{t}</SelectItem>
@@ -93,25 +93,25 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
           </div>
 
           <div>
-            <Label className="text-xs text-zinc-600">Proje Başlığı</Label>
-            <Input className="mt-1 rounded-2xl" value={value.projectTitle} onChange={(e) => onChange({ ...value, projectTitle: e.target.value })} />
+            <Label className="text-xs font-semibold text-slate-700">Proje Başlığı</Label>
+            <Input className="mt-1" value={value.projectTitle} onChange={(e) => onChange({ ...value, projectTitle: e.target.value })} />
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-xs text-zinc-600">Turnuva</Label>
-              <Input className="mt-1 rounded-2xl" value={value.tournament} onChange={(e) => onChange({ ...value, tournament: e.target.value })} />
+              <Label className="text-xs font-semibold text-slate-700">Turnuva</Label>
+              <Input className="mt-1" value={value.tournament} onChange={(e) => onChange({ ...value, tournament: e.target.value })} />
             </div>
             <div>
-              <Label className="text-xs text-zinc-600">Okul</Label>
-              <Input className="mt-1 rounded-2xl" value={value.school} onChange={(e) => onChange({ ...value, school: e.target.value })} />
+              <Label className="text-xs font-semibold text-slate-700">Okul</Label>
+              <Input className="mt-1" value={value.school} onChange={(e) => onChange({ ...value, school: e.target.value })} />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-        <div className="text-sm font-black text-slate-900">Proje Kategorisi</div>
-        <div className="mt-4">
+      <div className="rounded-[var(--radius-card)] border border-slate-100 bg-white shadow-sm p-6">
+        <div className="text-[17px] font-bold text-slate-900 tracking-tight">Proje Kategorisi</div>
+        <div className="mt-5">
           <ProjectCategoryFilters
             mainValue={mainValue}
             subValue={subValue}
@@ -121,35 +121,35 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
         </div>
       </div>
 
-      <div className="md:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm p-4">
+      <div className="md:col-span-2 rounded-[var(--radius-card)] border border-slate-100 bg-white shadow-sm p-6">
         <div className="flex items-center justify-between gap-2">
-          <div className="text-sm font-black text-slate-900">Üyeler</div>
-          <Button variant="outline" className="rounded-2xl" onClick={addMember}>
+          <div className="text-[17px] font-bold text-slate-900 tracking-tight">Üyeler</div>
+          <Button variant="outline" size="sm" onClick={addMember}>
             <Plus className="mr-2 h-4 w-4" /> Üye Ekle
           </Button>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <div className="mt-5 grid gap-4">
           {value.members.map((m) => (
-            <div key={m.id} className="rounded-xl border border-slate-200 bg-white shadow-sm p-3">
-              <div className="grid gap-3 md:grid-cols-6">
+            <div key={m.id} className="rounded-xl border border-slate-100 bg-slate-50 p-4 transition-colors hover:border-slate-200">
+              <div className="grid gap-4 md:grid-cols-6">
                 <div className="md:col-span-2">
-                  <Label className="text-xs text-zinc-600">Ad Soyad</Label>
+                  <Label className="text-xs font-semibold text-slate-700">Ad Soyad</Label>
                   <Input
-                    className="mt-1 rounded-2xl"
+                    className="mt-1 bg-white"
                     value={m.name}
                     onChange={(e) => updateMember(m.id, { name: e.target.value })}
                     onBlur={() => { if (m.role === "Kaptan" && m.name.trim()) onChange({ ...value, captain: m.name.trim() }); }}
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <Label className="text-xs text-zinc-600">Mail</Label>
-                  <Input className="mt-1 rounded-2xl" value={m.email} onChange={(e) => updateMember(m.id, { email: e.target.value })} />
+                  <Label className="text-xs font-semibold text-slate-700">Mail</Label>
+                  <Input className="mt-1 bg-white" value={m.email} onChange={(e) => updateMember(m.id, { email: e.target.value })} />
                 </div>
                 <div>
-                  <Label className="text-xs text-zinc-600">Sınıf</Label>
+                  <Label className="text-xs font-semibold text-slate-700">Sınıf</Label>
                   <Select value={String(m.grade)} onValueChange={(v) => updateMember(m.id, { grade: coerceGrade(v) })}>
-                    <SelectTrigger className="mt-1 rounded-2xl"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {[9, 10, 11].map((g) => (
                         <SelectItem key={g} value={String(g)}>{g}</SelectItem>
@@ -158,9 +158,9 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-xs text-zinc-600">Rol</Label>
+                  <Label className="text-xs font-semibold text-slate-700">Rol</Label>
                   <Select value={m.role} onValueChange={(v) => (v === "Kaptan" ? setCaptain(m.id) : updateMember(m.id, { role: "Üye" }))}>
-                    <SelectTrigger className="mt-1 rounded-2xl"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 bg-white"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Kaptan">Kaptan</SelectItem>
                       <SelectItem value="Üye">Üye</SelectItem>
@@ -168,19 +168,19 @@ export function TeamForm({ value, onChange, mode }: { value: Team; onChange: (t:
                   </Select>
                 </div>
               </div>
-              <div className="mt-3 flex items-center justify-between">
-                <div className="text-xs text-zinc-600">{m.school || value.school || "-"}</div>
-                <Button variant="ghost" className="rounded-2xl" onClick={() => removeMember(m.id)}>
-                  <Trash2 className="h-4 w-4 text-zinc-600" />
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-xs font-medium text-slate-500">{m.school || value.school || "-"}</div>
+                <Button variant="ghost" size="sm" className="h-8 text-rose-500 hover:bg-rose-50 hover:text-rose-600" onClick={() => removeMember(m.id)}>
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white shadow-sm p-4">
-          <Label className="text-xs text-zinc-600">Hakem Notu</Label>
-          <Input className="mt-1 rounded-2xl" value={value.judgeNote} onChange={(e) => onChange({ ...value, judgeNote: e.target.value })} />
+        <div className="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <Label className="text-xs font-semibold text-slate-700">Hakem Notu</Label>
+          <Input className="mt-1 bg-white" value={value.judgeNote} onChange={(e) => onChange({ ...value, judgeNote: e.target.value })} />
         </div>
 
         {mode === "create" ? <div className="mt-3 text-xs text-zinc-600">Takım eklendikten sonra Hakem menüsünden puanlama yapılabilir.</div> : null}

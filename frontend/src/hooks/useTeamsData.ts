@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Team } from "@/types";
-import { makeDemoTeams } from "@/data/seed";
 import { api } from "@/services/api";
 import { buildScoreBins, BarajCounts, sortByScoreDesc } from "@/utils/scoreUtils";
 import { LS_TEAMS } from "@/constants/demo";
@@ -23,7 +22,7 @@ function writeStoredTeams(teams: Team[]) {
 }
 
 export function useTeamsData(session: { email: string } | null) {
-  const [teams, setTeams] = useState<Team[]>(() => readStoredTeams() ?? makeDemoTeams());
+  const [teams, setTeams] = useState<Team[]>(() => readStoredTeams() ?? []);
   const [apiAvailable, setApiAvailable] = useState(false);
   const [teamsLoading, setTeamsLoading] = useState(true);
 
@@ -45,7 +44,7 @@ export function useTeamsData(session: { email: string } | null) {
     setTeamsLoading(true);
     api.getTeams()
       .then((data) => { setTeams(data); setApiAvailable(true); })
-      .catch(() => { setTeams(readStoredTeams() ?? makeDemoTeams()); setApiAvailable(false); })
+      .catch(() => { setTeams(readStoredTeams() ?? []); setApiAvailable(false); })
       .finally(() => setTeamsLoading(false));
   }, [session]);
 

@@ -71,7 +71,7 @@ npm run dev
 
 - **Port:** 5173 (Vite)
 - Backend çalışıyorsa `/api` istekleri proxy ile `http://localhost:3001`’e gider.
-- Backend yoksa veri `localStorage` + demo takımlar ile çalışır (özellik kaybı yok).
+- Backend yoksa veri `localStorage` ile çalışır (takımlar boş başlar; import veya Takım Ekle ile veri eklenir).
 
 ### Çalıştırma
 
@@ -134,6 +134,8 @@ vercel
 
 veya GitHub/GitLab bağlayıp otomatik deploy.
 
+**Demo hesaplar** (KV boşken otomatik): `admin@biltek.k12.tr` / `hakem@biltek.k12.tr` / `misafir@biltek.k12.tr`, şifre: `Biltek2026!`. Ek kullanıcı için ortam değişkeni gerekmez.
+
 ### 3. Vercel Serverless API (frontend/api/)
 
 Vercel’de deploy edildiğinde aşağıdaki route’lar `frontend/api/` altında çalışır; veri **Vercel KV** ile kalıcıdır.
@@ -147,9 +149,9 @@ Frontend, `VITE_API_URL` boş bırakıldığında aynı origin’e istek atar; V
 
 ### 4. Davranış
 
-- **İlk GET /api/teams:** KV boşsa demo takımlar otomatik seed’lenir ve KV’ye yazılır.
-- Sonraki tüm işlemler (takım ekleme, skor güncelleme, import, hakem CRUD) KV’de kalıcı olur.
-- Giriş bilgileri (admin/hakem/misafir) KV’de `chall:demo_users` ile saklanır; ilk kullanımda seed’lenir.
+- **Takımlar:** KV boşsa `GET /api/teams` boş dizi döner. Takım ekleme veya CSV/Excel import ile veri eklenir.
+- **Giriş:** İlk kullanımda kullanıcı yoktur. Vercel ortam değişkenlerine `FIRST_ADMIN_EMAIL` ve `FIRST_ADMIN_PASSWORD` ekleyin; ilk istekte bu hesap KV’ye yazılır ve giriş yapılabilir.
+- Tüm veriler (takımlar, hakemler, oturumlar) KV’de kalıcıdır.
 
 ### Alternatif depolama
 

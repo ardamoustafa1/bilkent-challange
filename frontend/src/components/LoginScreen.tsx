@@ -50,8 +50,8 @@ export function LoginScreen({
           </p>
         </div>
         <div className="hidden text-slate-500 md:block">
-          <p className="text-sm">Demo: admin@biltek.k12.tr / hakem@biltek.k12.tr / misafir@biltek.k12.tr</p>
-          <p className="mt-1 text-sm">Şifre: Biltek2026!</p>
+          <p className="text-[13px] font-medium">Girişler: admin@ / hakem@ / misafir@biltek.k12.tr</p>
+          <p className="mt-1 text-[13px] font-medium">Şifre: Biltek2026!</p>
         </div>
       </div>
 
@@ -68,10 +68,10 @@ export function LoginScreen({
             }}
           >
             <div>
-              <Label className="text-sm font-medium text-slate-700" htmlFor="login-email">
+              <Label className="text-[13px] font-semibold text-slate-700" htmlFor="login-email">
                 Email
               </Label>
-              <div className="mt-1.5 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 transition focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20">
+              <div className="mt-2 flex items-center gap-3 rounded-[var(--radius-button)] border border-slate-200 bg-white px-4 py-3 shadow-inner-soft transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-100 hover:border-slate-300">
                 <Mail className="h-5 w-5 shrink-0 text-slate-400" aria-hidden />
                 <input
                   id="login-email"
@@ -86,10 +86,10 @@ export function LoginScreen({
               </div>
             </div>
             <div>
-              <Label className="text-sm font-medium text-slate-700" htmlFor="login-password">
+              <Label className="text-[13px] font-semibold text-slate-700" htmlFor="login-password">
                 Şifre
               </Label>
-              <div className="mt-1.5 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 transition focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20">
+              <div className="mt-2 flex items-center gap-3 rounded-[var(--radius-button)] border border-slate-200 bg-white px-4 py-3 shadow-inner-soft transition-all focus-within:border-slate-300 focus-within:ring-4 focus-within:ring-slate-100 hover:border-slate-300">
                 <Lock className="h-5 w-5 shrink-0 text-slate-400" aria-hidden />
                 <input
                   id="login-password"
@@ -113,9 +113,9 @@ export function LoginScreen({
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </form>
-          <div className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600 md:hidden">
-            <p>Demo: admin@biltek.k12.tr / hakem@biltek.k12.tr</p>
-            <p className="mt-1">Şifre: Biltek2026!</p>
+          <div className="mt-6 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600 md:hidden border border-slate-100">
+            <p className="font-medium">Girişler: admin@ / hakem@ / misafir@</p>
+            <p className="mt-1 font-medium text-slate-500">Uzantı: biltek.k12.tr | Şifre: Biltek2026!</p>
           </div>
         </div>
       </div>

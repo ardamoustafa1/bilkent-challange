@@ -7,9 +7,24 @@ import * as store from "../store.js";
 const loginBody = z.object({ email: z.string().min(1, "Email gerekli."), password: z.string().min(1, "Şifre gerekli.") });
 
 const DEMO_USERS: DemoUser[] = [
-  { email: "admin@biltek.k12.tr", pass: "Biltek2026!", role: "admin", name: "Admin" },
-  { email: "hakem@biltek.k12.tr", pass: "Biltek2026!", role: "judge", name: "Hakem" },
-  { email: "misafir@biltek.k12.tr", pass: "Biltek2026!", role: "visitor", name: "Ziyaretçi" },
+  {
+    email: process.env.ADMIN_EMAIL ?? "admin@biltek.k12.tr",
+    pass: process.env.ADMIN_PASS ?? "Biltek2026!",
+    role: "admin",
+    name: process.env.ADMIN_NAME ?? "Admin",
+  },
+  {
+    email: process.env.JUDGE_EMAIL ?? "hakem@biltek.k12.tr",
+    pass: process.env.JUDGE_PASS ?? "Biltek2026!",
+    role: "judge",
+    name: process.env.JUDGE_NAME ?? "Hakem",
+  },
+  {
+    email: process.env.VISITOR_EMAIL ?? "misafir@biltek.k12.tr",
+    pass: process.env.VISITOR_PASS ?? "Biltek2026!",
+    role: "visitor",
+    name: process.env.VISITOR_NAME ?? "Ziyaretçi",
+  },
 ];
 
 function normalizeEmail(s: string): string {
