@@ -12,5 +12,9 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: { "/api": { target: "http://localhost:3001", changeOrigin: true } },
+    allowedHosts: ["challange.up.railway.app", ".railway.app"]
   },
+  preview: {
+    allowedHosts: ["challange.up.railway.app", ".railway.app"]
+  }
 });
