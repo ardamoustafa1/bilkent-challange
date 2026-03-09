@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id                     String   @id
+  week                   Int
+  name                   String
+  captain                String
+  members                Json     // Store TeamMember[] as JSON for simplicity, or we could create a TeamMember model
+  tournamentCategory     String
+  tournamentTier         String
+  projectTitle           String
+  createdAtISO           String
+  badges                 Json     // Store BadgeId[] as JSON
+  scores                 Json     // Store JudgeScores as JSON (average)
+  rawScores              Json?    // Store Record<judgeId, JudgeScores> -- individual judge scores
+  judgeNote              String
+  tournament             String
+  school                 String
+  projectMainCategory    String?
+  projectSubCategory     String?
+  assignedJudgeId        String?
+  scoresEnteredByJudgeId String?
+}
+
+model Session {
+  token     String   @id
+  email     String
+  role      String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Judge {
+  id           String   @id
+  name         String
+  email        String
+  createdAtISO String?
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  teamId    String
+  judgeId   String
+  action    String
+  oldScores Json?
+  newScores Json?
+  createdAt DateTime @default(now())
+}

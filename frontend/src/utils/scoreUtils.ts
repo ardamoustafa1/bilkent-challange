@@ -2,11 +2,37 @@ import type { JudgeScores, BadgeId, Team } from "@/types";
 import { clamp } from "./helpers";
 
 export function computeSubScores(s: JudgeScores) {
-  const avg = (keys: (keyof JudgeScores)[]) => keys.reduce((a, k) => a + s[k], 0) / (keys.length || 1);
-  const digital = avg(["problem", "aiLogic", "promptQuality", "promptIteration", "analytic"]);
-  const project = avg(["mvpReality", "guidelineFit", "solutionCoherence", "scalability"]);
-  const skill = avg(["teamHarmony", "comms", "leadership", "discipline", "feedbackOpenness"]);
-  const presentation = avg(["presentation", "qna", "stage"]);
+  const weightedAvg = (items: { k: keyof JudgeScores, w: number }[]) => {
+    const sum = items.reduce((a, item) => a + s[item.k] * item.w, 0);
+    const weightSum = items.reduce((a, item) => a + item.w, 0);
+    return weightSum > 0 ? sum / weightSum : 1;
+  };
+
+  const digital = weightedAvg([
+    { k: "aiLogic", w: 3 },
+    { k: "promptQuality", w: 2 },
+    { k: "problem", w: 1 },
+    { k: "promptIteration", w: 1 },
+    { k: "analytic", w: 1 }
+  ]);
+  const project = weightedAvg([
+    { k: "mvpReality", w: 2 },
+    { k: "solutionCoherence", w: 2 },
+    { k: "scalability", w: 1 },
+    { k: "guidelineFit", w: 1 }
+  ]);
+  const skill = weightedAvg([
+    { k: "leadership", w: 2 },
+    { k: "teamHarmony", w: 2 },
+    { k: "comms", w: 1 },
+    { k: "discipline", w: 1 },
+    { k: "feedbackOpenness", w: 1 }
+  ]);
+  const presentation = weightedAvg([
+    { k: "presentation", w: 2 },
+    { k: "qna", w: 2 },
+    { k: "stage", w: 1 }
+  ]);
   return { digital, project, skill, presentation };
 }
 
@@ -96,16 +122,40 @@ export function buildScoreBins(teams: Array<{ scores: JudgeScores }>) {
   return bins;
 }
 
-export function BarajCounts(teams: Array<{ scores: JudgeScores }>) {
-  let burs = 0, odul = 0, aday = 0, havuz = 0;
-  for (const t of teams) {
-    const p = evolPercent(t.scores);
-    if (p >= 90) burs++;
-    else if (p >= 80) odul++;
-    else if (p >= 70) aday++;
-    else havuz++;
-  }
-  return { burs, odul, aday, havuz };
+export function BarajCounts(filtered: Team[]): { burs: number; odul: number; aday: number; havuz: number } {
+  const arr = [...filtered].sort(sortByScoreDesc);
+  let b = 0, o = 0, a = 0, h = 0;
+  arr.forEach((t, i) => {
+    const total = evolPercent(t.scores);
+    if (i < 4 && total >= 80) b++;
+    else if (i < 10 && total >= 70) o++;
+    else if (i < 20 && total >= 60) a++;
+    else h++;
+  });
+  return { burs: b, odul: o, aday: a, havuz: h };
+}
+
+export function getLeagueData(teams: Team[]) {
+  return [...teams].sort(sortByScoreDesc).map(team => {
+    const totalScore = evolPercent(team.scores);
+    const hasScores = totalScore > 0;
+    return {
+      team,
+      totalScore,
+      hasScores
+    };
+  });
+}
+
+export function formatScore(score: number): string {
+  return score.toFixed(1) + "%";
+}
+
+export function getRankColor(index: number): string {
+  if (index === 0) return "text-yellow-400";
+  if (index === 1) return "text-slate-300";
+  if (index === 2) return "text-amber-500";
+  return "text-slate-400";
 }
 
 export function sortByScoreDesc(a: Team, b: Team) {

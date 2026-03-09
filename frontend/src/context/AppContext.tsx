@@ -5,6 +5,7 @@ import { LS_JUDGES } from "@/constants/demo";
 import { genScores, defaultBadgesFromScores } from "@/utils/scoreUtils";
 import { parseImportRows, buildTeamsFromRows, mergeOverwritePreserveScores } from "@/utils/importExport";
 import { api } from "@/services/api";
+import { socket } from "@/services/socket";
 import { useTeamsData } from "@/hooks/useTeamsData";
 import { TOURNAMENT_CATALOG } from "@/constants/catalog";
 import type { ToastItem } from "@/components/Toast";
@@ -19,6 +20,7 @@ type AppContextValue = {
   teamsLoading: boolean;
   tournaments: string[];
   schools: string[];
+  dashFiltered: Team[];
   sortedDash: Team[];
   playoff: Team[];
   finalFour: Team[];
@@ -109,13 +111,37 @@ export function AppProvider({ session, logout, children }: { session: Session; l
     else setJudges(JSON.parse(localStorage.getItem(LS_JUDGES) || "[]"));
   }, [apiAvailable]);
 
+  useEffect(() => {
+    socket.on("teamUpdated", (updatedTeam: Team) => {
+      setTeams((prev) => {
+        const index = prev.findIndex((t) => t.id === updatedTeam.id);
+        if (index === -1) return [...prev, updatedTeam];
+        const copy = [...prev];
+        copy[index] = updatedTeam;
+        return copy;
+      });
+    });
+
+    return () => {
+      socket.off("teamUpdated");
+    };
+  }, [setTeams]);
+
   const openTeamDetail = (teamId: string) => { setActiveTeamId(teamId); setTeamDetailOpen(true); };
 
   const openJudgeEntry = (teamId: string) => {
     setActiveTeamId(teamId);
     const t = teams.find((x) => x.id === teamId);
     if (!t) return;
-    setJudgeDraft(t.scores);
+    
+    let draft = t.scores;
+    // Eğer oturumdaki kullanıcı bir hakemse ve daha önce bu takıma puan vermişse, o puanları getir.
+    const judgeId = session ? judges.find((j) => normalizeEmail(j.email) === normalizeEmail(session.email))?.id : undefined;
+    if (judgeId && t.rawScores && t.rawScores[judgeId]) {
+      draft = t.rawScores[judgeId];
+    }
+    
+    setJudgeDraft(draft);
     setJudgeEntryOpen(true);
   };
 

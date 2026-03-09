@@ -2,10 +2,10 @@ import type { Request, Response, NextFunction } from "express";
 import type { Session } from "../types.js";
 import * as store from "../store.js";
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
+export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const auth = req.headers.authorization;
   const token = typeof auth === "string" && auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  const session = store.getSession(token);
+  const session = await store.getSession(token);
   if (!session) {
     res.status(401).json({ error: "Oturum gerekli. Lütfen giriş yapın." });
     return;

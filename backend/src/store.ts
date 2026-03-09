@@ -1,197 +1,267 @@
-import fs from "fs";
-import path from "path";
-import type { Team, Session, Judge } from "./types.js";
+import { PrismaClient } from "@prisma/client";
+import type { Team, Session, Judge, JudgeScores } from "./types.js";
 import { logger } from "./lib/logger.js";
 
-// ── JSON File Persistence ─────────────────────────────────────────
-// Veriler data/ klasörüne JSON olarak kaydedilir.
-// Sunucu restart olsa bile veriler korunur.
+const prisma = new PrismaClient({
+  log: ['error', 'warn'],
+});
 
-const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
-const TEAMS_FILE = path.join(DATA_DIR, "teams.json");
-const JUDGES_FILE = path.join(DATA_DIR, "judges.json");
-
-function ensureDataDir(): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-    logger.info("store", `Data dizini oluşturuldu: ${DATA_DIR}`);
-  }
+export async function getAuditLogs() {
+  return await prisma.auditLog.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
 }
 
-function loadJson<T>(filePath: string, fallback: T): T {
-  try {
-    if (fs.existsSync(filePath)) {
-      const raw = fs.readFileSync(filePath, "utf-8");
-      const data = JSON.parse(raw);
-      logger.info("store", `${path.basename(filePath)} yüklendi (${Array.isArray(data) ? data.length : 0} kayıt)`);
-      return data as T;
-    }
-  } catch (e) {
-    logger.error("store", `${filePath} okunamadı:`, e);
-  }
-  return fallback;
+export async function getTeams(): Promise<Team[]> {
+  const teams = await prisma.team.findMany();
+  return teams.map((t: any) => ({
+    ...t,
+    members: t.members as unknown as any[],
+    badges: t.badges as unknown as any[],
+    scores: t.scores as unknown as JudgeScores,
+  }));
 }
 
-function saveJson(filePath: string, data: unknown): void {
-  try {
-    ensureDataDir();
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
-  } catch (e) {
-    logger.error("store", `${filePath} yazılamadı:`, e);
-  }
-}
-
-// Debounce: çok sık dosya yazımını önler (100ms)
-const saveTimers = new Map<string, ReturnType<typeof setTimeout>>();
-function debouncedSave(filePath: string, data: unknown): void {
-  const existing = saveTimers.get(filePath);
-  if (existing) clearTimeout(existing);
-  saveTimers.set(filePath, setTimeout(() => {
-    saveJson(filePath, data);
-    saveTimers.delete(filePath);
-  }, 100));
-}
-
-function persistTeams(): void { debouncedSave(TEAMS_FILE, teams); }
-function persistJudges(): void { debouncedSave(JUDGES_FILE, judges); }
-
-// ── Initialize from disk ──────────────────────────────────────────
-ensureDataDir();
-const teams: Team[] = loadJson<Team[]>(TEAMS_FILE, []);
-const judges: Judge[] = loadJson<Judge[]>(JUDGES_FILE, []);
-
-// ── Teams ─────────────────────────────────────────────────────────
-export function getTeams(): Team[] {
-  return teams;
-}
-
-export function getTeamById(id: string): Team | undefined {
-  return teams.find((t) => t.id === id);
-}
-
-export function setTeams(newTeams: Team[]): void {
-  teams.length = 0;
-  teams.push(...newTeams);
-  persistTeams();
-}
-
-export function upsertTeam(team: Team): Team {
-  const idx = teams.findIndex((t) => t.id === team.id);
-  const body = team as Team & { assignedJudgeId?: string | null };
-  if (idx >= 0) {
-    const existing = teams[idx];
-    const assignedJudgeId = body.assignedJudgeId === null ? undefined : (team.assignedJudgeId ?? existing.assignedJudgeId);
-    teams[idx] = { ...team, scores: existing.scores, badges: existing.badges, judgeNote: existing.judgeNote, createdAtISO: existing.createdAtISO, assignedJudgeId };
-    persistTeams();
-    return teams[idx];
-  }
-  teams.push({ ...team, assignedJudgeId: body.assignedJudgeId === null ? undefined : team.assignedJudgeId });
-  persistTeams();
-  return teams[teams.length - 1];
-}
-
-export function deleteTeam(id: string): boolean {
-  const idx = teams.findIndex((t) => t.id === id);
-  if (idx < 0) return false;
-  teams.splice(idx, 1);
-  persistTeams();
-  return true;
-}
-
-export function updateTeamScores(teamId: string, scores: Team["scores"], badges: Team["badges"], judgeNote: string, scoresEnteredByJudgeId?: string): Team | undefined {
-  const t = teams.find((x) => x.id === teamId);
+export async function getTeamById(id: string): Promise<Team | undefined> {
+  const t = await prisma.team.findUnique({ where: { id } });
   if (!t) return undefined;
-  t.scores = scores;
-  t.badges = badges;
-  t.judgeNote = judgeNote;
-  if (scoresEnteredByJudgeId !== undefined) t.scoresEnteredByJudgeId = scoresEnteredByJudgeId;
-  persistTeams();
-  return t;
+  return {
+    ...t,
+    members: t.members as unknown as any[],
+    badges: t.badges as unknown as any[],
+    scores: t.scores as unknown as JudgeScores,
+  };
 }
 
-export function replaceTeamsWithMerge(incoming: Team[]): Team[] {
-  const byId = new Map(teams.map((t) => [t.id, t]));
-  const merged: Team[] = [];
+export async function setTeams(newTeams: Team[]): Promise<void> {
+  // Replace teams is tricky in SQL: usually clear and insert
+  await prisma.team.deleteMany();
+  await prisma.team.createMany({
+    data: newTeams.map(t => ({
+      ...t,
+      members: t.members as any,
+      badges: t.badges as any,
+      scores: t.scores as any,
+    }))
+  });
+}
+
+export async function upsertTeam(team: Team): Promise<Team> {
+  const data = {
+    week: team.week,
+    name: team.name,
+    captain: team.captain,
+    members: team.members as any,
+    tournamentCategory: team.tournamentCategory,
+    tournamentTier: team.tournamentTier,
+    projectTitle: team.projectTitle,
+    createdAtISO: team.createdAtISO,
+    badges: team.badges as any,
+    scores: team.scores as any,
+    judgeNote: team.judgeNote,
+    tournament: team.tournament,
+    school: team.school,
+    projectMainCategory: team.projectMainCategory,
+    projectSubCategory: team.projectSubCategory,
+    assignedJudgeId: team.assignedJudgeId,
+    scoresEnteredByJudgeId: team.scoresEnteredByJudgeId
+  };
+
+  const t = await prisma.team.upsert({
+    where: { id: team.id },
+    create: { id: team.id, ...data },
+    update: data,
+  });
+
+  return {
+    ...t,
+    members: t.members as unknown as any[],
+    badges: t.badges as unknown as any[],
+    scores: t.scores as unknown as JudgeScores,
+  };
+}
+
+export async function deleteTeam(id: string): Promise<boolean> {
+  try {
+    await prisma.team.delete({ where: { id } });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+export async function updateTeamScores(teamId: string, scores: Team["scores"], badges: Team["badges"], judgeNote: string, scoresEnteredByJudgeId?: string): Promise<Team | undefined> {
+  try {
+    const existing = await prisma.team.findUnique({ where: { id: teamId } });
+    if (!existing) return undefined;
+
+    let newRawScores = (existing.rawScores as Record<string, JudgeScores>) || {};
+    let finalScores = scores;
+
+    if (scoresEnteredByJudgeId) {
+      newRawScores = { ...newRawScores, [scoresEnteredByJudgeId]: scores };
+      
+      // Calculate averages from all rawScores
+      const judgeIds = Object.keys(newRawScores);
+      if (judgeIds.length > 0) {
+        finalScores = Object.keys(scores).reduce((acc, key) => {
+          const sum = judgeIds.reduce((s, jId) => s + ((newRawScores[jId] as any)[key] || 0), 0);
+          acc[key as keyof JudgeScores] = sum / judgeIds.length;
+          return acc;
+        }, {} as Record<keyof JudgeScores, number>) as JudgeScores;
+      }
+    }
+
+    const data: any = {
+      scores: finalScores as any,
+      rawScores: newRawScores as any,
+      badges: badges as any,
+      judgeNote,
+    };
+    if (scoresEnteredByJudgeId !== undefined) data.scoresEnteredByJudgeId = scoresEnteredByJudgeId;
+
+    const t = await prisma.team.update({
+      where: { id: teamId },
+      data,
+    });
+
+    if (scoresEnteredByJudgeId) {
+      await prisma.auditLog.create({
+        data: {
+          teamId,
+          judgeId: scoresEnteredByJudgeId,
+          action: existing?.scores ? "UPDATE_SCORES" : "INSERT_SCORES",
+          oldScores: existing?.scores ?? {},
+          newScores: scores as any,
+        }
+      });
+    }
+
+    const result = {
+      ...t,
+      members: t.members as unknown as any[],
+      badges: t.badges as unknown as any[],
+      scores: t.scores as unknown as JudgeScores,
+    };
+    
+    // Yalnızca Prisma güncellemelerinden sonra index io'sunu import edip emit etmeliyiz
+    import("./index.js").then(({ io }) => {
+      io.emit("teamUpdated", result);
+    }).catch(console.error);
+
+    return result;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+export async function replaceTeamsWithMerge(incoming: Team[]): Promise<Team[]> {
   for (const inc of incoming) {
-    const existing = byId.get(inc.id);
+    const existing = await getTeamById(inc.id);
     if (existing) {
-      merged.push({
-        ...inc,
-        scores: existing.scores,
-        badges: existing.badges,
-        judgeNote: existing.judgeNote,
-        createdAtISO: existing.createdAtISO,
-        assignedJudgeId: existing.assignedJudgeId ?? inc.assignedJudgeId,
-        scoresEnteredByJudgeId: existing.scoresEnteredByJudgeId ?? inc.scoresEnteredByJudgeId,
+      await prisma.team.update({
+        where: { id: inc.id },
+        data: {
+          week: inc.week,
+          name: inc.name,
+          captain: inc.captain,
+          members: inc.members as any,
+          tournamentCategory: inc.tournamentCategory,
+          tournamentTier: inc.tournamentTier,
+          projectTitle: inc.projectTitle,
+          tournament: inc.tournament,
+          school: inc.school,
+          projectMainCategory: inc.projectMainCategory,
+          projectSubCategory: inc.projectSubCategory,
+        }
       });
     } else {
-      merged.push(inc);
+      await upsertTeam(inc);
     }
   }
-  const untouched = teams.filter((t) => !incoming.some((i) => i.id === t.id));
-  setTeams([...untouched, ...merged]);
   return getTeams();
 }
 
-// ── Sessions (file-persisted) ──────────────────────────────────────
-const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
-
-const sessionsData = loadJson<Record<string, Session>>(SESSIONS_FILE, {});
-const sessions = new Map<string, Session>(Object.entries(sessionsData));
-
-function persistSessions(): void {
-  const obj = Object.fromEntries(sessions);
-  debouncedSave(SESSIONS_FILE, obj);
+export async function setSession(token: string, session: Session): Promise<void> {
+  await prisma.session.upsert({
+    where: { token },
+    create: {
+      token,
+      email: session.email,
+      role: session.role,
+      name: session.name,
+    },
+    update: {
+      email: session.email,
+      role: session.role,
+      name: session.name,
+    }
+  });
 }
 
-export function setSession(token: string, session: Session): void {
-  sessions.set(token, session);
-  persistSessions();
+export async function getSession(token: string): Promise<Session | null> {
+  const s = await prisma.session.findUnique({ where: { token } });
+  if (!s) return null;
+  return { email: s.email, role: s.role as any, name: s.name };
 }
 
-export function getSession(token: string): Session | null {
-  return sessions.get(token) ?? null;
+export async function deleteSession(token: string): Promise<void> {
+  try {
+    await prisma.session.delete({ where: { token } });
+  } catch (e) {
+    // Ignore if not exists
+  }
 }
 
-export function deleteSession(token: string): void {
-  sessions.delete(token);
-  persistSessions();
-}
-
-export function validateSession(token: string): Session | null {
+export async function validateSession(token: string): Promise<Session | null> {
   return getSession(token);
 }
 
-// ── Judges ────────────────────────────────────────────────────────
-export function getJudges(): Judge[] {
-  return [...judges];
+export async function getJudges(): Promise<Judge[]> {
+  const judges = await prisma.judge.findMany();
+  return judges.map((j: any) => ({ ...j, createdAtISO: j.createdAtISO ?? undefined }));
 }
 
-export function getJudgeById(id: string): Judge | undefined {
-  return judges.find((j) => j.id === id);
-}
-
-export function createJudge(judge: Omit<Judge, "id" | "createdAtISO">): Judge {
-  const id = `j-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const created: Judge = { ...judge, id, createdAtISO: new Date().toISOString() };
-  judges.push(created);
-  persistJudges();
-  return created;
-}
-
-export function updateJudge(id: string, patch: Partial<Pick<Judge, "name" | "email">>): Judge | undefined {
-  const j = judges.find((x) => x.id === id);
+export async function getJudgeById(id: string): Promise<Judge | undefined> {
+  const j = await prisma.judge.findUnique({ where: { id } });
   if (!j) return undefined;
-  if (patch.name !== undefined) j.name = patch.name;
-  if (patch.email !== undefined) j.email = patch.email;
-  persistJudges();
-  return j;
+  return { ...j, createdAtISO: j.createdAtISO ?? undefined };
 }
 
-export function deleteJudge(id: string): boolean {
-  const idx = judges.findIndex((x) => x.id === id);
-  if (idx < 0) return false;
-  judges.splice(idx, 1);
-  persistJudges();
-  return true;
+export async function createJudge(judge: Omit<Judge, "id" | "createdAtISO">): Promise<Judge> {
+  const id = `j-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const createdAtISO = new Date().toISOString();
+  const created = await prisma.judge.create({
+    data: {
+      id,
+      name: judge.name,
+      email: judge.email,
+      createdAtISO,
+    }
+  });
+  return { ...created, createdAtISO: created.createdAtISO ?? undefined };
+}
+
+export async function updateJudge(id: string, patch: Partial<Pick<Judge, "name" | "email">>): Promise<Judge | undefined> {
+  try {
+    const updated = await prisma.judge.update({
+      where: { id },
+      data: {
+        ...(patch.name ? { name: patch.name } : {}),
+        ...(patch.email ? { email: patch.email } : {}),
+      }
+    });
+    return { ...updated, createdAtISO: updated.createdAtISO ?? undefined };
+  } catch (e) {
+    return undefined;
+  }
+}
+
+export async function deleteJudge(id: string): Promise<boolean> {
+  try {
+    await prisma.judge.delete({ where: { id } });
+    return true;
+  } catch (e) {
+    return false;
+  }
 }

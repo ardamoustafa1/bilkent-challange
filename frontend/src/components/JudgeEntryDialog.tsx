@@ -6,6 +6,8 @@ import { SCORE_GROUPS } from "@/constants/scoreMeta";
 import { evolPercent } from "@/utils/scoreUtils";
 import { ScoreChip } from "./ScoreChip";
 import { MetricSlider } from "./MetricSlider";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { useState } from "react";
 
 export function JudgeEntryDialog({
   open,
@@ -26,6 +28,8 @@ export function JudgeEntryDialog({
   saving?: boolean;
   saveError?: string | null;
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   if (!team) return null;
   const pct = evolPercent(draft);
 
@@ -69,9 +73,19 @@ export function JudgeEntryDialog({
         {saveError ? <div className="mt-2 shrink-0 rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{saveError}</div> : null}
         <div className="mt-4 flex shrink-0 items-center justify-end gap-3">
           <Button variant="outline" className="" onClick={() => onOpenChange(false)} disabled={saving}>Kapat</Button>
-          <Button className="" onClick={onSave} disabled={saving}>{saving ? "Kaydediliyor…" : "Kaydet"}</Button>
+          <Button className="" onClick={() => setConfirmOpen(true)} disabled={saving}>{saving ? "Kaydediliyor…" : "Kaydet"}</Button>
         </div>
       </DialogContent>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="Puanı Onayla"
+        description={`${team.name} takımına ortalama %${pct} EVOL puanı veriyorsunuz.\n\nEmin misiniz?`}
+        confirmLabel="Puanı Gönder"
+        cancelLabel="Vazgeç"
+        variant="info"
+        onConfirm={onSave}
+      />
     </Dialog>
   );
 }

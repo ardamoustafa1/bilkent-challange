@@ -37,7 +37,7 @@ function createToken(): string {
 
 export const authRouter = Router();
 
-authRouter.post("/login", (req, res) => {
+authRouter.post("/login", async (req, res) => {
   const parsed = loginBody.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçersiz istek.";
@@ -53,14 +53,14 @@ authRouter.post("/login", (req, res) => {
   }
   const session: Session = { email: u.email, role: u.role, name: u.name };
   const token = createToken();
-  store.setSession(token, session);
+  await store.setSession(token, session);
   res.json({ session, token });
 });
 
-authRouter.get("/me", (req, res) => {
+authRouter.get("/me", async (req, res) => {
   const auth = req.headers.authorization;
   const token = typeof auth === "string" && auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  const session = store.getSession(token);
+  const session = await store.getSession(token);
   if (!session) {
     res.status(401).json({ error: "Oturum geçersiz." });
     return;
@@ -68,9 +68,9 @@ authRouter.get("/me", (req, res) => {
   res.json(session);
 });
 
-authRouter.post("/logout", (req, res) => {
+authRouter.post("/logout", async (req, res) => {
   const auth = req.headers.authorization;
   const token = typeof auth === "string" && auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (token) store.deleteSession(token);
+  if (token) await store.deleteSession(token);
   res.status(204).end();
 });

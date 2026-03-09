@@ -7,11 +7,11 @@ const createJudgeBody = z.object({ name: z.string().min(1, "Hakem adı gerekli."
 
 export const judgesRouter = Router();
 
-judgesRouter.get("/", (_req, res) => {
-  res.json(store.getJudges());
+judgesRouter.get("/", async (_req, res) => {
+  res.json(await store.getJudges());
 });
 
-judgesRouter.post("/", requireAdmin, (req, res) => {
+judgesRouter.post("/", requireAdmin, async (req, res) => {
   const parsed = createJudgeBody.safeParse(req.body);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((e: { message: string }) => e.message).join(" ") || "Geçersiz istek.";
@@ -19,12 +19,12 @@ judgesRouter.post("/", requireAdmin, (req, res) => {
     return;
   }
   const { name, email } = parsed.data;
-  const created = store.createJudge({ name: name.trim(), email: email.trim() });
+  const created = await store.createJudge({ name: name.trim(), email: email.trim() });
   res.status(201).json(created);
 });
 
-judgesRouter.get("/:id", (req, res) => {
-  const j = store.getJudgeById(req.params.id);
+judgesRouter.get("/:id", async (req, res) => {
+  const j = await store.getJudgeById(req.params.id);
   if (!j) {
     res.status(404).json({ error: "Hakem bulunamadı." });
     return;
@@ -34,13 +34,13 @@ judgesRouter.get("/:id", (req, res) => {
 
 const updateJudgeBody = z.object({ name: z.string().optional(), email: z.string().optional() });
 
-judgesRouter.put("/:id", requireAdmin, (req, res) => {
+judgesRouter.put("/:id", requireAdmin, async (req, res) => {
   const parsed = updateJudgeBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Geçersiz istek." });
     return;
   }
-  const updated = store.updateJudge(req.params.id, parsed.data);
+  const updated = await store.updateJudge(req.params.id, parsed.data);
   if (!updated) {
     res.status(404).json({ error: "Hakem bulunamadı." });
     return;
@@ -48,8 +48,8 @@ judgesRouter.put("/:id", requireAdmin, (req, res) => {
   res.json(updated);
 });
 
-judgesRouter.delete("/:id", requireAdmin, (req, res) => {
-  const ok = store.deleteJudge(req.params.id);
+judgesRouter.delete("/:id", requireAdmin, async (req, res) => {
+  const ok = await store.deleteJudge(req.params.id);
   if (!ok) {
     res.status(404).json({ error: "Hakem bulunamadı." });
     return;

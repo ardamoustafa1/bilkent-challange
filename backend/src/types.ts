@@ -75,6 +75,7 @@ export type Team = {
   createdAtISO: string;
   badges: BadgeId[];
   scores: JudgeScores;
+  rawScores?: Record<string, JudgeScores>;
   judgeNote: string;
   tournament: string;
   school: string;

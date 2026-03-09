@@ -1,14 +1,15 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Info } from "lucide-react";
 
 export function ConfirmDialog({
   open,
   onOpenChange,
   title = "Emin misiniz?",
   description = "Bu işlem geri alınamaz.",
-  confirmLabel = "Sil",
+  confirmLabel = "Onayla",
   cancelLabel = "Vazgeç",
+  variant = "destructive",
   onConfirm,
 }: {
   open: boolean;
@@ -17,6 +18,7 @@ export function ConfirmDialog({
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  variant?: "destructive" | "info" | "success";
   onConfirm: () => void;
 }) {
   return (
@@ -24,8 +26,12 @@ export function ConfirmDialog({
       <DialogContent className="max-w-sm rounded-[1.5rem] p-0 overflow-hidden">
         <div className="flex flex-col items-center px-8 pt-8 pb-6">
           {/* Icon */}
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rose-50">
-            <AlertTriangle className="h-7 w-7 text-rose-500" />
+          <div className={`flex h-14 w-14 items-center justify-center rounded-full ${variant === "destructive" ? "bg-rose-50" : "bg-blue-50"}`}>
+            {variant === "destructive" ? (
+              <AlertTriangle className="h-7 w-7 text-rose-500" />
+            ) : (
+              <Info className="h-7 w-7 text-blue-500" />
+            )}
           </div>
 
           {/* Title */}
@@ -34,7 +40,7 @@ export function ConfirmDialog({
           </h3>
 
           {/* Description */}
-          <p className="mt-2 text-center text-[13px] leading-relaxed text-slate-500">
+          <p className="mt-2 text-center text-[13px] leading-relaxed text-slate-500 whitespace-pre-line">
             {description}
           </p>
         </div>
@@ -49,7 +55,9 @@ export function ConfirmDialog({
             {cancelLabel}
           </Button>
           <Button
-            className="flex-1 rounded-xl bg-rose-600 text-[13px] font-semibold text-white hover:bg-rose-700"
+            className={`flex-1 rounded-xl text-[13px] font-semibold text-white ${
+              variant === "destructive" ? "bg-rose-600 hover:bg-rose-700" : "bg-blue-600 hover:bg-blue-700"
+            }`}
             onClick={() => {
               onConfirm();
               onOpenChange(false);

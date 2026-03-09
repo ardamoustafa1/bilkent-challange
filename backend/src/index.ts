@@ -6,14 +6,18 @@ import rateLimit from "express-rate-limit";
 import { authRouter } from "./routes/auth.js";
 import { teamsRouter } from "./routes/teams.js";
 import { judgesRouter } from "./routes/judges.js";
+import { logsRouter } from "./routes/logs.js";
 import { requireAuth } from "./middleware/auth.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { logger } from "./lib/logger.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT ?? 3001;
 
 const corsOrigin = process.env.CORS_ORIGIN;
@@ -22,6 +26,17 @@ const corsOptions = corsOrigin
   : { origin: true, credentials: true };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "2mb" }));
+
+export const io = new Server(httpServer, {
+  cors: corsOptions,
+});
+
+io.on("connection", (socket) => {
+  logger.info("socket", `Socket connected: ${socket.id}`);
+  socket.on("disconnect", () => {
+    logger.info("socket", `Socket disconnected: ${socket.id}`);
+  });
+});
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
@@ -44,6 +59,7 @@ app.use("/api/auth/login", loginLimiter);
 app.use("/api/auth", authRouter);
 app.use("/api/teams", requireAuth, teamsRouter);
 app.use("/api/judges", requireAuth, judgesRouter);
+app.use("/api/logs", requireAuth, logsRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
@@ -63,8 +79,8 @@ app.get("*", (_req, res) => {
 // ── Global Error Handler ───────────────────────────────────────────
 app.use(errorHandler);
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   logger.info("server", `🚀 Server http://localhost:${PORT}`);
   logger.info("server", `📁 Frontend: ${FRONTEND_DIST}`);
-  logger.info("server", `💾 Data: ${process.env.DATA_DIR || path.join(process.cwd(), "data")}`);
+  logger.info("server", `💾 Data: PostgreSQL (Supabase)`);
 });

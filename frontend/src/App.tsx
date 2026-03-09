@@ -15,6 +15,7 @@ import { TeamsPage } from "@/pages/TeamsPage";
 import { JudgePage } from "@/pages/JudgePage";
 import { LeaguePage } from "@/pages/LeaguePage";
 import { AdminPage } from "@/pages/AdminPage";
+import { TvModePage } from "@/pages/TvModePage";
 
 // Sürüm güncellemesi: Eski demo verilerini temizle
 const OLD_LS_KEYS = [
@@ -34,6 +35,15 @@ export default function App() {
   useEffect(() => { clearOldStorageOnce(); }, []);
 
   const { session, login: handleLogin, logout } = useAuth();
+  const isTvMode = typeof window !== "undefined" && window.location.pathname === "/tv";
+
+  if (isTvMode) {
+    return (
+      <AppProvider session={{ email: "tv@mode.com", role: "visitor", name: "TV Mode" }} logout={logout}>
+        <TvModePage />
+      </AppProvider>
+    );
+  }
 
   if (!session) return <LoginScreen onLogin={handleLogin} />;
 

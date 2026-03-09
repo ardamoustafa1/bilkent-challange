@@ -1,4 +1,4 @@
-import type { Session, Team, Judge } from "@/types";
+import type { Session, Team, Judge, AuditLog } from "@/types";
 import { LS_TOKEN } from "@/constants/demo";
 
 const API_BASE =
@@ -113,6 +113,10 @@ export const api = {
 
   async deleteJudge(id: string): Promise<void> {
     await fetchJson<void>(`${base}/api/judges/${id}`, { method: "DELETE" });
+  },
+
+  async getAuditLogs(): Promise<AuditLog[]> {
+    return fetchJson<AuditLog[]>(`${base}/api/logs`);
   },
 
   async health(): Promise<boolean> {

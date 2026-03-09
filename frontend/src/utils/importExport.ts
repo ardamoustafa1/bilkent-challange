@@ -2,7 +2,8 @@ import * as XLSX from "xlsx";
 import type { Team, TeamMember, WeekId, TournamentCategory, TournamentTier, ImportRow } from "@/types";
 import { TOURNAMENT_CATALOG } from "@/constants/catalog";
 import { safeUUID } from "./helpers";
-import { genScores, defaultBadgesFromScores } from "./scoreUtils";
+import { genScores, defaultBadgesFromScores, evolPercent } from "./scoreUtils";
+import { SCORE_GROUPS } from "@/constants/scoreMeta";
 
 function coerceWeek(v: unknown): WeekId {
   const n = Number(String(v ?? "").trim());
@@ -177,4 +178,42 @@ export function buildTeamsFromRows(rows: ImportRow[]): Team[] {
 
 export function mergeOverwritePreserveScores(existing: Team, incoming: Team): Team {
   return { ...incoming, scores: existing.scores, badges: existing.badges, judgeNote: existing.judgeNote, createdAtISO: existing.createdAtISO };
+}
+
+export function exportTeamsToCsv(teams: Team[]): string {
+  const header = [
+    "team_id", "team_name", "week", "tournament_category", "tournament_tier", "project_title",
+    "member_school", "member_name", "member_email", "member_grade", "member_role",
+    "tournament", "school", "project_main_category", "project_sub_category", "evol_score_pct"
+  ];
+  
+  SCORE_GROUPS.forEach(g => {
+    g.items.forEach(it => {
+      header.push(`score_${it.key}`);
+    });
+  });
+
+  const rows: string[] = [header.join(",")];
+
+  teams.forEach(t => {
+    const pct = evolPercent(t.scores);
+    t.members.forEach(m => {
+      const rowData = [
+        t.id, `"${t.name.replace(/"/g, '""')}"`, t.week, `"${t.tournamentCategory}"`, `"${t.tournamentTier}"`,
+        `"${(t.projectTitle||"").replace(/"/g, '""')}"`, `"${m.school}"`, `"${m.name}"`, `"${m.email}"`,
+        m.grade, `"${m.role}"`, `"${t.tournament}"`, `"${t.school}"`,
+        `"${t.projectMainCategory || ""}"`, `"${t.projectSubCategory || ""}"`, pct
+      ];
+      
+      SCORE_GROUPS.forEach(g => {
+        g.items.forEach(it => {
+          rowData.push(String(t.scores[it.key]));
+        });
+      });
+
+      rows.push(rowData.join(","));
+    });
+  });
+
+  return rows.join("\n");
 }
