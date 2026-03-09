@@ -1,6 +1,21 @@
 import { PrismaClient } from "@prisma/client";
-import type { Team, Session, Judge, JudgeScores } from "./types.js";
+import type { Team, Session, Judge, JudgeScores, WeekId, TournamentCategory, TournamentTier } from "./types.js";
 import { logger } from "./lib/logger.js";
+
+// Helper: safely cast the raw Prisma Team record to our typed Team
+function mapToTeam(t: any): Team {
+  return {
+    ...t,
+    week: t.week as WeekId,
+    tournamentCategory: t.tournamentCategory as TournamentCategory,
+    tournamentTier: t.tournamentTier as TournamentTier,
+    members: t.members as unknown as any[],
+    badges: t.badges as unknown as any[],
+    scores: t.scores as unknown as JudgeScores,
+  };
+}
+
+
 
 const prisma = new PrismaClient({
   log: ['error', 'warn'],
@@ -14,23 +29,13 @@ export async function getAuditLogs() {
 
 export async function getTeams(): Promise<Team[]> {
   const teams = await prisma.team.findMany();
-  return teams.map((t: any) => ({
-    ...t,
-    members: t.members as unknown as any[],
-    badges: t.badges as unknown as any[],
-    scores: t.scores as unknown as JudgeScores,
-  }));
+  return teams.map((t: any) => mapToTeam(t));
 }
 
 export async function getTeamById(id: string): Promise<Team | undefined> {
   const t = await prisma.team.findUnique({ where: { id } });
   if (!t) return undefined;
-  return {
-    ...t,
-    members: t.members as unknown as any[],
-    badges: t.badges as unknown as any[],
-    scores: t.scores as unknown as JudgeScores,
-  };
+  return mapToTeam(t);
 }
 
 export async function setTeams(newTeams: Team[]): Promise<void> {
@@ -73,12 +78,7 @@ export async function upsertTeam(team: Team): Promise<Team> {
     update: data,
   });
 
-  return {
-    ...t,
-    members: t.members as unknown as any[],
-    badges: t.badges as unknown as any[],
-    scores: t.scores as unknown as JudgeScores,
-  };
+  return mapToTeam(t);
 }
 
 export async function deleteTeam(id: string): Promise<boolean> {
@@ -137,12 +137,7 @@ export async function updateTeamScores(teamId: string, scores: Team["scores"], b
       });
     }
 
-    const result = {
-      ...t,
-      members: t.members as unknown as any[],
-      badges: t.badges as unknown as any[],
-      scores: t.scores as unknown as JudgeScores,
-    };
+    const result = mapToTeam(t);
     
     // Yalnızca Prisma güncellemelerinden sonra index io'sunu import edip emit etmeliyiz
     import("./index.js").then(({ io }) => {
