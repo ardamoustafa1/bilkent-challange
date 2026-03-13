@@ -6,7 +6,7 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { TeamCard } from "@/components/TeamCard";
 import { useAppContext } from "@/context/AppContext";
 import { sortByScoreDesc } from "@/utils/scoreUtils";
-import { resolveSubMeta } from "@/utils/category";
+
 
 export function LeaguePage() {
   const { teams, openTeamDetail } = useAppContext();
