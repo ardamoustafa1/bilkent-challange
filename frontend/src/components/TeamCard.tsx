@@ -4,7 +4,7 @@ import type { Team } from "@/types";
 import { evolPercent, scoreLabel } from "@/utils/scoreUtils";
 import { resolveSubMeta } from "@/utils/category";
 import { badgeMeta } from "@/constants/badges";
-import { ScoreChip } from "./ScoreChip";
+
 
 export function TeamCard({ team, onOpen, clickable = true }: { team: Team; onOpen: () => void; clickable?: boolean }) {
   const pct = evolPercent(team.scores);
