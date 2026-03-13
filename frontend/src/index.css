@@ -7,14 +7,17 @@
     --font-heading: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
     --font-sans: "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
     
-    --color-primary: #0F172A; /* Deep slate, very premium */
-    --color-primary-hover: #1E293B;
-    --color-primary-light: #F1F5F9;
+    /* Biraz daha canlı ama kurumsal bir ana renk paleti */
+    --color-primary: #1f2937;           /* slate-800 */
+    --color-primary-accent: #4f46e5;    /* indigo-600 */
+    --color-primary-accent-soft: #dbeafe; /* indigo-100 */
+    --color-primary-hover: #111827;
+    --color-primary-light: #f1f5f9;
     
     --color-surface: #FFFFFF;
     --color-surface-elevated: #FFFFFF;
     
-    --color-background: #F8FAFC; /* Lightest slate, airy */
+    --color-background: #F8FAFC;
     
     --color-border: #E2E8F0;
     --color-border-light: #F1F5F9;
@@ -23,16 +26,17 @@
     --color-text-muted: #64748B;
     --color-text-light: #94A3B8;
     
-    --radius-card: 1.25rem; /* Larger border radius */
+    --radius-card: 1.25rem;
     --radius-button: 0.75rem;
     
     /* Premium, airy, diffused shadows */
-    --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.03); 
-    --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-    --shadow-inner-soft: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+    --shadow-soft: 0 4px 20px -2px rgba(15, 23, 42, 0.06); 
+    --shadow-float: 0 16px 45px -12px rgba(15, 23, 42, 0.18);
+    --shadow-inner-soft: inset 0 2px 4px 0 rgba(15, 23, 42, 0.03);
   }
 
   body {
+    /* Üst/alt şeritler koyu, içerik alanı yine ferah ve aydınlık */
     @apply bg-slate-50 text-slate-900 antialiased selection:bg-slate-200;
     font-family: var(--font-sans);
   }
@@ -81,7 +85,8 @@
   
   /* Layout utilities */
   .glass-header {
-    @apply bg-white/80 backdrop-blur-md border-b border-slate-100;
+    @apply bg-white/90 backdrop-blur-md border-b border-slate-100;
+    background-image: linear-gradient(to right, rgba(79,70,229,0.06), rgba(8,47,73,0.02));
   }
 
   /* Custom Range Slider */

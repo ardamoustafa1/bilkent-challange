@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { ShieldCheck, Plus, Download, Upload, ChevronLeft, ChevronRight, Activity, Monitor, FileText, Loader2 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RTCooltip, BarChart, Bar, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SectionTitle } from "@/components/SectionTitle";
 import { ScoreChip } from "@/components/ScoreChip";
 import { useAppContext } from "@/context/AppContext";
@@ -19,7 +21,15 @@ const PAGE_SIZE = 10;
 
 export function AdminPage() {
   const {
-    teams, openAdminCreate, openAdminEdit,
+    teams,
+    tournaments,
+    schools,
+    dashTournament,
+    setDashTournament,
+    dashSchool,
+    setDashSchool,
+    openAdminCreate,
+    openAdminEdit,
     downloadTemplate, importFile, importErr,
   } = useAppContext();
 
@@ -29,7 +39,15 @@ export function AdminPage() {
   const [printingTeam, setPrintingTeam] = useState<Team | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const sortedTeams = useMemo(() => [...teams].sort(sortByScoreDesc), [teams]);
+  const filteredTeams = useMemo(
+    () =>
+      teams
+        .filter((t) => (dashTournament === "all" ? true : t.tournament === dashTournament))
+        .filter((t) => (dashSchool === "all" ? true : t.school === dashSchool)),
+    [teams, dashTournament, dashSchool]
+  );
+
+  const sortedTeams = useMemo(() => [...filteredTeams].sort(sortByScoreDesc), [filteredTeams]);
   const totalPages = Math.max(1, Math.ceil(sortedTeams.length / PAGE_SIZE));
   const pageTeams = sortedTeams.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
@@ -145,6 +163,40 @@ export function AdminPage() {
                 <Plus className="mr-2 h-4 w-4" /> 
                 Takım Ekle
               </Button>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div>
+              <Label className="text-xs text-slate-600">Turnuva Adı</Label>
+              <Select value={dashTournament} onValueChange={setDashTournament}>
+                <SelectTrigger className="mt-1 rounded-xl">
+                  <SelectValue placeholder="Tümü" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  {tournaments.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-slate-600">Turnuva Okulu</Label>
+              <Select value={dashSchool} onValueChange={setDashSchool}>
+                <SelectTrigger className="mt-1 rounded-xl">
+                  <SelectValue placeholder="Tümü" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  {schools.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="mt-4 grid gap-3">

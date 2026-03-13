@@ -31,6 +31,8 @@ type AppContextValue = {
   setDashTournament: (v: string) => void;
   dashSchool: string;
   setDashSchool: (v: string) => void;
+  dashWeek: string;
+  setDashWeek: (v: string) => void;
   teamsTournament: string;
   setTeamsTournament: (v: string) => void;
   teamsSchool: string;
@@ -271,7 +273,9 @@ export function AppProvider({ session, logout, children }: { session: Session; l
   };
 
   const value: AppContextValue = {
-    session, logout, ...teamsData,
+    session,
+    logout,
+    ...teamsData,
     judges, setJudges, toast, setToast,
     activeTeam, teamDetailOpen, setTeamDetailOpen, openTeamDetail,
     judgeEntryOpen, setJudgeEntryOpen, judgeDraft, setJudgeDraft,

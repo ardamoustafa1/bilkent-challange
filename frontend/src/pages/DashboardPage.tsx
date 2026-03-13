@@ -10,7 +10,9 @@ export function DashboardPage() {
   const {
     teams, sortedDash, playoff, finalFour, baraj, bins,
     tournaments, schools,
-    dashTournament, setDashTournament, dashSchool, setDashSchool,
+    dashTournament, setDashTournament,
+    dashSchool, setDashSchool,
+    dashWeek, setDashWeek,
     openTeamDetail,
   } = useAppContext();
 
@@ -18,9 +20,9 @@ export function DashboardPage() {
     <div className="grid gap-4">
       <SectionTitle icon={Sparkles} title="Akış" subtitle="Filtreli seçim + skorlar + PlayOff + Final Four" />
       <div className="card p-4">
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <Label className="text-xs text-slate-600">Turnuva</Label>
+            <Label className="text-xs text-slate-600">Turnuva Adı</Label>
             <Select value={dashTournament} onValueChange={setDashTournament}>
               <SelectTrigger className="mt-1 rounded-xl"><SelectValue placeholder="Tümü" /></SelectTrigger>
               <SelectContent>
@@ -30,12 +32,24 @@ export function DashboardPage() {
             </Select>
           </div>
           <div>
-            <Label className="text-xs text-slate-600">Okul</Label>
+            <Label className="text-xs text-slate-600">Turnuva Okulu</Label>
             <Select value={dashSchool} onValueChange={setDashSchool}>
               <SelectTrigger className="mt-1 rounded-xl"><SelectValue placeholder="Tümü" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tümü</SelectItem>
                 {schools.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs text-slate-600">Turnuva Haftası</Label>
+            <Select value={dashWeek} onValueChange={setDashWeek}>
+              <SelectTrigger className="mt-1 rounded-xl"><SelectValue placeholder="Tümü" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tümü</SelectItem>
+                {[1, 2, 3, 4].map((w) => (
+                  <SelectItem key={w} value={String(w)}>{w}. Hafta</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

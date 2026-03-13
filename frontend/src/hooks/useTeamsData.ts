@@ -28,6 +28,7 @@ export function useTeamsData(session: { email: string } | null) {
 
   const [dashTournament, setDashTournament] = useState("all");
   const [dashSchool, setDashSchool] = useState("all");
+  const [dashWeek, setDashWeek] = useState("all");
   const [teamsTournament, setTeamsTournament] = useState("all");
   const [teamsSchool, setTeamsSchool] = useState("all");
   const [teamsWeek, setTeamsWeek] = useState("all");
@@ -55,11 +56,14 @@ export function useTeamsData(session: { email: string } | null) {
   const tournaments = useMemo(() => Array.from(new Set(teams.map((t) => t.tournament).filter(Boolean))).sort(), [teams]);
   const schools = useMemo(() => Array.from(new Set(teams.map((t) => t.school).filter(Boolean))).sort(), [teams]);
 
-  const dashFiltered = useMemo(() =>
-    teams
-      .filter((t) => (dashTournament === "all" ? true : t.tournament === dashTournament))
-      .filter((t) => (dashSchool === "all" ? true : t.school === dashSchool)),
-  [teams, dashTournament, dashSchool]);
+  const dashFiltered = useMemo(
+    () =>
+      teams
+        .filter((t) => (dashTournament === "all" ? true : t.tournament === dashTournament))
+        .filter((t) => (dashSchool === "all" ? true : t.school === dashSchool))
+        .filter((t) => (dashWeek === "all" ? true : String(t.week) === dashWeek)),
+    [teams, dashTournament, dashSchool, dashWeek]
+  );
 
   const sortedDash = useMemo(() => [...dashFiltered].sort(sortByScoreDesc), [dashFiltered]);
   const playoff = useMemo(() => sortedDash.slice(0, 8), [sortedDash]);
@@ -101,6 +105,8 @@ export function useTeamsData(session: { email: string } | null) {
     setDashTournament,
     dashSchool,
     setDashSchool,
+    dashWeek,
+    setDashWeek,
     teamsTournament,
     setTeamsTournament,
     teamsSchool,

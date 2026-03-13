@@ -48,6 +48,8 @@ export type Judge = {
   id: string;
   name: string;
   email: string;
+  /** Hakemin bağlı olduğu okul (opsiyonel) */
+  school?: string;
   createdAtISO?: string;
 };
 

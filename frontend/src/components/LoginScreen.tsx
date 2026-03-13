@@ -32,24 +32,29 @@ export function LoginScreen({
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-900 md:flex-row">
+    <div className="flex min-h-screen flex-col bg-slate-950 md:flex-row">
       {/* Sol: Marka alanı */}
-      <div className="flex flex-1 flex-col justify-between p-8 md:p-12">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/25">
+      <div className="relative flex flex-1 flex-col justify-between p-8 md:p-12">
+        {/* arka plan parıltıları */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-24 top-10 h-56 w-56 rounded-full bg-cyan-500/20 blur-3xl" />
+          <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
+        </div>
+        <div className="relative flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500 via-sky-500 to-indigo-500 text-white shadow-lg shadow-cyan-500/30">
             <Sparkles className="h-6 w-6" />
           </div>
           <span className="text-xl font-bold tracking-tight text-white">AI Challenge</span>
         </div>
-        <div>
+        <div className="relative">
           <h1 className="text-3xl font-extrabold leading-tight text-white md:text-4xl">
             Hakem & Yönetim Paneli
           </h1>
-          <p className="mt-4 max-w-md text-lg text-slate-400">
+          <p className="mt-4 max-w-md text-lg text-slate-300">
             Takımları değerlendirin, skorları girin ve turnuva akışını tek yerden yönetin.
           </p>
         </div>
-        <div className="hidden text-slate-500 md:block">
+        <div className="relative hidden text-slate-400 md:block">
           <p className="text-[13px] font-medium">Girişler: admin@ / hakem@ / misafir@biltek.k12.tr</p>
           <p className="mt-1 text-[13px] font-medium">Şifre: Biltek2026!</p>
         </div>

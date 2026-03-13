@@ -34,7 +34,7 @@ export default async function handler(req: Request) {
       } catch {
         return new Response(JSON.stringify({ error: "Geçersiz body" }), { status: 400, headers: { "Content-Type": "application/json" } });
       }
-      const updated = await updateJudge(id, { name: body.name, email: body.email });
+      const updated = await updateJudge(id, { name: body.name, email: body.email, school: body.school });
       if (!updated) {
         return new Response(JSON.stringify({ error: "Hakem bulunamadı." }), { status: 404, headers: { "Content-Type": "application/json" } });
       }

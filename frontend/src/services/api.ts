@@ -97,14 +97,14 @@ export const api = {
     return fetchJson<Judge[]>(`${base}/api/judges`);
   },
 
-  async createJudge(judge: { name: string; email: string }): Promise<Judge> {
+  async createJudge(judge: { name: string; email: string; school?: string }): Promise<Judge> {
     return fetchJson<Judge>(`${base}/api/judges`, {
       method: "POST",
       body: JSON.stringify(judge),
     });
   },
 
-  async updateJudge(id: string, patch: { name?: string; email?: string }): Promise<Judge> {
+  async updateJudge(id: string, patch: { name?: string; email?: string; school?: string }): Promise<Judge> {
     return fetchJson<Judge>(`${base}/api/judges/${id}`, {
       method: "PUT",
       body: JSON.stringify(patch),

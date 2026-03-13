@@ -23,7 +23,7 @@ export default async function handler(req: Request) {
     }
 
     if (req.method === "POST") {
-      let body: { name?: string; email?: string };
+      let body: { name?: string; email?: string; school?: string };
       try {
         body = await req.json();
       } catch {
@@ -34,6 +34,7 @@ export default async function handler(req: Request) {
       }
       const name = String(body.name ?? "").trim();
       const email = String(body.email ?? "").trim().toLowerCase();
+      const school = body.school ? String(body.school).trim() : undefined;
       if (!name) {
         return new Response(JSON.stringify({ error: "Hakem adı gerekli." }), {
           status: 400,
@@ -44,6 +45,7 @@ export default async function handler(req: Request) {
         id: safeId(),
         name,
         email,
+        school,
         createdAtISO: new Date().toISOString(),
       };
       const created = await createJudge(judge);

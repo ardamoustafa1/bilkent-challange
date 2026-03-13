@@ -48,6 +48,7 @@ export function JudgePanelModule({
 }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [school, setSchool] = useState("");
   const [assignTeamId, setAssignTeamId] = useState("all");
   const [assignJudgeId, setAssignJudgeId] = useState("all");
 
@@ -72,12 +73,14 @@ export function JudgePanelModule({
     const n = name.trim();
     if (!n) return;
     const e = email.trim().toLowerCase();
+    const s = school.trim();
     if (apiAvailable) {
       try {
-        const created = await api.createJudge({ name: n, email: e });
+        const created = await api.createJudge({ name: n, email: e, school: s || undefined });
         setJudges((prev) => [...prev, created]);
         setName("");
         setEmail("");
+        setSchool("");
       } catch {
         onError?.("Hakem eklenemedi.");
       }
@@ -87,11 +90,13 @@ export function JudgePanelModule({
       id: safeUUID(),
       name: n,
       email: e,
+      school: s || undefined,
       createdAtISO: new Date().toISOString(),
     };
     setJudges((prev) => [...prev, newJudge]);
     setName("");
     setEmail("");
+    setSchool("");
   };
 
   const deleteJudge = async (id: string) => {
@@ -135,6 +140,10 @@ export function JudgePanelModule({
             <Label className="text-xs font-semibold text-slate-700">E-posta</Label>
             <Input className="mt-1" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hakem@okul.k12.tr" />
           </div>
+          <div>
+            <Label className="text-xs font-semibold text-slate-700">Okul</Label>
+            <Input className="mt-1" value={school} onChange={(e) => setSchool(e.target.value)} placeholder="Biltek Koleji / Kampüs" />
+          </div>
           <Button className="" onClick={addJudge} disabled={!name.trim()}>
             <UserPlus className="mr-2 h-4 w-4" /> Hakem ekle
           </Button>
@@ -146,8 +155,12 @@ export function JudgePanelModule({
             <ul className="space-y-2">
               {judges.map((j) => (
                 <li key={j.id} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm">
-                  <span className="truncate font-semibold text-slate-900">{j.name}</span>
-                  <span className="truncate text-[13px] text-slate-500">{j.email || "—"}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-semibold text-slate-900">{j.name}</div>
+                    <div className="truncate text-[12px] text-slate-500">
+                      {j.school ? `${j.school} • ${j.email || "—"}` : j.email || "—"}
+                    </div>
+                  </div>
                   <Button variant="ghost" size="sm" className="h-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50" onClick={() => deleteJudge(j.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>

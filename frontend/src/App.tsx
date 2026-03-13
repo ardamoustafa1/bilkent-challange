@@ -74,7 +74,8 @@ function AppShell() {
           <>
             {tab === "dash" && <DashboardPage />}
             {tab === "teams" && <TeamsPage />}
-            {tab === "judge" && <JudgePage />}
+            {/* Ziyaretçi rolünde Hakem sayfası gösterilmez */}
+            {tab === "judge" && ctx.session.role !== "visitor" && <JudgePage />}
             {tab === "ucl" && <LeaguePage />}
             {tab === "admin" && ctx.session.role === "admin" && <AdminPage />}
           </>

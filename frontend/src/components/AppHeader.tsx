@@ -8,8 +8,8 @@ export function AppHeader({ session, onLogout }: { session: Session; onLogout: (
     <header className="sticky top-0 z-40 glass-header">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white shadow-sm">
-            <Sparkles className="h-4 w-4" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 via-sky-500 to-cyan-400 text-white shadow-sm">
+            <Sparkles className="h-4 w-4 drop-shadow" />
           </div>
           <div>
             <h1 className="text-sm font-semibold text-slate-900 tracking-tight">AI Challenge Panel</h1>

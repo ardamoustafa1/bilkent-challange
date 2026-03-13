@@ -1,15 +1,16 @@
 import { Sparkles, Users, ClipboardList, Trophy, ShieldCheck } from "lucide-react";
 import type { Role } from "@/types";
 
-const BASE = [
-  { id: "dash", label: "Akış", icon: Sparkles },
-  { id: "teams", label: "Takımlar", icon: Users },
-  { id: "judge", label: "Hakem", icon: ClipboardList },
-  { id: "ucl", label: "Lig", icon: Trophy },
-] as const;
-
 export function BottomNav({ value, onChange, role }: { value: string; onChange: (v: string) => void; role: Role }) {
-  const items = role === "admin" ? [...BASE, { id: "admin", label: "Admin", icon: ShieldCheck }] : BASE;
+  const base = [
+    { id: "dash", label: "Akış", icon: Sparkles },
+    { id: "teams", label: "Takımlar", icon: Users },
+    // Hakem sekmesi: admin + judge rolleri görebilir, ziyaretçi görmez
+    ...(role === "visitor" ? [] : [{ id: "judge", label: "Hakem", icon: ClipboardList }] as const),
+    { id: "ucl", label: "Lig", icon: Trophy },
+  ] as const;
+
+  const items = role === "admin" ? [...base, { id: "admin", label: "Admin", icon: ShieldCheck }] : base;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 glass-header border-t">
@@ -26,7 +27,7 @@ export function BottomNav({ value, onChange, role }: { value: string; onChange: 
               className={
                 "flex flex-1 flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition-all duration-200 " +
                 (active
-                  ? "bg-slate-900 text-white shadow-sm"
+                  ? "bg-gradient-to-r from-slate-900 via-indigo-700 to-sky-600 text-white shadow-sm"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-900")
               }
             >

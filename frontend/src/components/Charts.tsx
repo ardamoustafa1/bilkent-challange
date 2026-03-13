@@ -15,10 +15,15 @@ export function EvolRadar({ scores }: { scores: JudgeScores }) {
     <div className="h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart data={data} outerRadius="70%">
-          <PolarGrid />
-          <PolarAngleAxis dataKey="k" />
-          <PolarRadiusAxis angle={30} domain={[0, 5]} tickCount={6} />
-          <Radar dataKey="v" stroke="#64748b" fill="#94a3b8" fillOpacity={0.15} />
+          <PolarGrid stroke="#e5e7eb" />
+          <PolarAngleAxis dataKey="k" tick={{ fill: "#4b5563", fontSize: 11 }} />
+          <PolarRadiusAxis angle={30} domain={[0, 5]} tickCount={6} tick={{ fill: "#9ca3af", fontSize: 10 }} />
+          <Radar
+            dataKey="v"
+            stroke="#4f46e5"
+            fill="#6366f1"
+            fillOpacity={0.18}
+          />
         </RadarChart>
       </ResponsiveContainer>
     </div>
@@ -33,9 +38,11 @@ export function ScoreDistribution({ data }: { data: Array<{ name: string; count:
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} barCategoryGap={18}>
             <defs>
+              {/* Alt menüdeki Akış sekmesinin rengini yansıtacak gradient */}
               <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#0F172A" stopOpacity={0.85} />
-                <stop offset="100%" stopColor="#334155" stopOpacity={0.75} />
+                <stop offset="0%" stopColor="#1d4ed8" stopOpacity={0.95} />   {/* mavi */}
+                <stop offset="50%" stopColor="#4338ca" stopOpacity={0.98} />  {/* indigo */}
+                <stop offset="100%" stopColor="#020617" stopOpacity={1} />     {/* çok koyu navy */}
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -52,10 +59,10 @@ export function ScoreDistribution({ data }: { data: Array<{ name: string; count:
 
 export function BarajDagilimi({ burs, odul, aday, havuz }: { burs: number; odul: number; aday: number; havuz: number }) {
   const items = [
-    { title: "%90+ • Burs", value: burs, cls: "bg-emerald-50/50 border-emerald-100 text-emerald-800" },
-    { title: "%80–89 • Ödül", value: odul, cls: "bg-slate-50/50 border-slate-100 text-slate-800" },
-    { title: "%70–79 • Aday", value: aday, cls: "bg-amber-50/50 border-amber-100 text-amber-800" },
-    { title: "<70 • Havuz", value: havuz, cls: "bg-white border-slate-100 text-slate-500" },
+    { title: "%90+ • Burs", value: burs, cls: "bg-emerald-50 border-emerald-200 text-emerald-800" },
+    { title: "%80–89 • Ödül", value: odul, cls: "bg-indigo-50 border-indigo-200 text-indigo-800" },
+    { title: "%70–79 • Aday", value: aday, cls: "bg-amber-50 border-amber-200 text-amber-800" },
+    { title: "<70 • Havuz", value: havuz, cls: "bg-slate-50 border-slate-200 text-slate-600" },
   ];
   return (
     <div className="card p-5">

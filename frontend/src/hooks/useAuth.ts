@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import type { Session } from "@/types";
-import { LS_SESSION, LS_TOKEN } from "@/constants/demo";
+import { LS_SESSION, LS_TOKEN, DEMO_USERS } from "@/constants/demo";
 import { api } from "@/services/api";
+import { normalizeEmail } from "@/utils/helpers";
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
@@ -41,6 +42,14 @@ export function useAuth() {
       try { localStorage.setItem(LS_SESSION, JSON.stringify(r)); } catch {}
       return;
     } catch {
+      // API çalışmıyorsa veya hata veriyorsa: local demo kullanıcı fallback
+      const u = DEMO_USERS.find((x) => normalizeEmail(email) === normalizeEmail(x.email) && password === x.pass);
+      if (u) {
+        const s: Session = { email: u.email, role: u.role, name: u.name };
+        setSession(s);
+        try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch {}
+        return;
+      }
       return { error: "Giriş başarısız. Lütfen email ve şifrenizi kontrol edin veya sunucu bağlantısını doğrulayın." };
     }
   };
